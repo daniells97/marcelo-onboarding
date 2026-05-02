@@ -1,0 +1,2060 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marcelo CRM — Portal de Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: {
+            950: '#0A1322',
+            900: '#0F1A2E',
+            800: '#172540',
+            700: '#223255',
+            600: '#334672',
+            500: '#4B618E',
+          },
+          gold: {
+            50:  '#FBF5E8',
+            100: '#F6E9C9',
+            200: '#EED69A',
+            300: '#E3C06A',
+            400: '#D4A14A',
+            500: '#B68436',
+            600: '#8E6429',
+          },
+          paper: {
+            50:  '#FBFAF7',
+            100: '#F5F3EC',
+            200: '#EAE6DB',
+            300: '#D9D3C2',
+          },
+          ink: {
+            900: '#1A1F2A',
+            700: '#3F4756',
+            500: '#6B7280',
+            400: '#8C93A1',
+          },
+          ok:    '#1F7A5A',
+          okbg:  '#E6F2EC',
+          warn:  '#B85C1E',
+          warnbg:'#FBEAD9',
+        },
+        fontFamily: {
+          serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        boxShadow: {
+          card: '0 1px 0 0 rgba(15,26,46,0.04), 0 1px 2px 0 rgba(15,26,46,0.04), 0 8px 24px -12px rgba(15,26,46,0.08)',
+          cardHover: '0 1px 0 0 rgba(15,26,46,0.04), 0 2px 4px 0 rgba(15,26,46,0.04), 0 20px 36px -14px rgba(15,26,46,0.14)',
+          inset: 'inset 0 0 0 1px rgba(15,26,46,0.06)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background: #FBFAF7; color: #1A1F2A; }
+  body { font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .font-serif { letter-spacing: -0.01em; }
+  .hairline { border-color: rgba(15,26,46,0.08); }
+  .hairline-strong { border-color: rgba(15,26,46,0.14); }
+  .dash-border {
+    background-image: linear-gradient(90deg, rgba(15,26,46,0.18) 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    background-position: 0 50%;
+  }
+  .vert-dash {
+    background-image: linear-gradient(rgba(15,26,46,0.18) 50%, transparent 50%);
+    background-size: 1px 6px;
+    background-repeat: repeat-y;
+  }
+  .ring-focus:focus { outline: none; box-shadow: 0 0 0 3px rgba(212,161,74,0.4); }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+  .chev { transition: transform .18s ease; }
+  .noise::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .fade-in { animation: fade .35s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .skeleton { background: linear-gradient(90deg, #EFEBE0 0%, #F7F4EC 50%, #EFEBE0 100%); background-size: 200% 100%; animation: sk 1.2s infinite linear; border-radius: 6px; }
+  @keyframes sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .toast-in { animation: toast .3s ease both; }
+  @keyframes toast { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .slide-in-right { animation: slideInR .38s cubic-bezier(.22,.9,.33,1) both; }
+  .slide-in-left  { animation: slideInL .38s cubic-bezier(.22,.9,.33,1) both; }
+  @keyframes slideInR { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+  @keyframes slideInL { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+  @keyframes drawCircle { from { stroke-dashoffset: 289; } to { stroke-dashoffset: 0; } }
+  @keyframes drawCheck  { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
+  .splash-fade-in  { animation: splashFadeIn .5s ease both; }
+  .splash-fade-out { animation: splashFadeOut .8s ease both; }
+  @keyframes splashFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes splashFadeOut { from { opacity: 1; background: #0F1A2E; } 60% { background: #FFFFFF; } to { opacity: 0; background: #FFFFFF; } }
+  .btn-rise { animation: btnRise .6s cubic-bezier(.22,.9,.33,1) both; }
+  @keyframes btnRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .particle {
+    position: absolute; border-radius: 9999px;
+    background: rgba(212,161,74,0.35);
+    animation: drift linear infinite;
+    pointer-events: none;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.8; }
+    100% { transform: translate3d(var(--dx,40px), var(--dy,-120px), 0) scale(1.3); opacity: 0; }
+  }
+  input:disabled, textarea:disabled { background: transparent; color: #3F4756; cursor: default; }
+  .num-pill { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef, createContext, useContext } = React;
+
+// ---------- Icons (minimal, hand-crafted strokes, 1.5) ----------
+const I = ({ d, size=18, stroke=1.5, fill='none' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+);
+const IconCheck = (p) => <I {...p} d={<polyline points="4 12 10 18 20 6" />} />;
+const IconCircle = (p) => <I {...p} d={<circle cx="12" cy="12" r="8" />} />;
+const IconAlert = (p) => <I {...p} d={<><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v5"/><circle cx="12" cy="18" r=".6" fill="currentColor" stroke="none"/></>} />;
+const IconArrowRight = (p) => <I {...p} d={<><line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></>} />;
+const IconArrowLeft = (p) => <I {...p} d={<><line x1="20" y1="12" x2="4" y2="12"/><polyline points="10 18 4 12 10 6"/></>} />;
+const IconChevDown = (p) => <I {...p} d={<polyline points="6 9 12 15 18 9" />} />;
+const IconPlay = (p) => <I {...p} fill="currentColor" stroke="none" d={<polygon points="7 5 19 12 7 19 7 5" />} />;
+const IconMail = (p) => <I {...p} d={<><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></>} />;
+const IconWhats = (p) => <I {...p} d={<><path d="M4 20l1.5-4A8 8 0 1 1 9 20H4z"/><path d="M9 10.5c.5 2 2 3.5 4 4l1.2-1.2c.3-.3.7-.4 1-.2l1.6.8c.4.2.6.6.4 1-.5 1.4-2 2.1-3.6 1.6-2.8-.7-5-2.9-5.7-5.7-.5-1.6.2-3.1 1.6-3.6.4-.2.8 0 1 .4l.8 1.6c.2.3.1.7-.2 1L9 10.5z"/></>} />;
+const IconShare = (p) => <I {...p} d={<><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 13v3"/><path d="M12 10v6"/><path d="M16 7v9"/></>} />;
+const IconGlobe = (p) => <I {...p} d={<><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.8 3 2.8 15 0 18"/><path d="M12 3c-2.8 3-2.8 15 0 18"/></>} />;
+const IconFile = (p) => <I {...p} d={<><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/><polyline points="14 3 14 8 19 8"/></>} />;
+const IconEdit = (p) => <I {...p} d={<><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></>} />;
+const IconX = (p) => <I {...p} d={<><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></>} />;
+const IconClock = (p) => <I {...p} d={<><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></>} />;
+const IconUpload = (p) => <I {...p} d={<><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="8 8 12 4 16 8"/><line x1="12" y1="4" x2="12" y2="16"/></>} />;
+const IconSpark = (p) => <I {...p} d={<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>} />;
+
+// ---------- Router (hash-based) ----------
+const RouterCtx = createContext(null);
+const useRoute = () => useContext(RouterCtx);
+
+function parseHash() {
+  const h = window.location.hash.replace(/^#/, '') || '/loc_HRZ2042';
+  const parts = h.split('/').filter(Boolean);
+  return { locationId: parts[0] || 'loc_HRZ2042', page: parts[1] || 'home' };
+}
+
+function RouterProvider({ children }) {
+  const [route, setRoute] = useState(parseHash());
+  useEffect(() => {
+    const onHash = () => { setRoute(parseHash()); window.scrollTo({ top: 0, behavior: 'instant' }); };
+    window.addEventListener('hashchange', onHash);
+    if (!window.location.hash) window.location.hash = '/loc_HRZ2042';
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  const navigate = (page) => {
+    window.location.hash = page === 'home' ? `/${route.locationId}` : `/${route.locationId}/${page}`;
+  };
+  return <RouterCtx.Provider value={{ ...route, navigate }}>{children}</RouterCtx.Provider>;
+}
+
+// ---------- Global state (steps) ----------
+const STEPS_META = {
+  form:     { key:'form',     idx:1, title:'Formulario de onboarding',    desc:'Información base de tu negocio',                 block:'Tu negocio',     icon: IconFile,   required:true,  route:'formulario' },
+  gmail:    { key:'gmail',    idx:2, title:'Conectar Gmail / Calendar',    desc:'Sincronización de citas y correo',               block:'Comunicación',   icon: IconMail,   required:true,  route:'gmail' },
+  whatsapp: { key:'whatsapp', idx:3, title:'Conectar WhatsApp Business',   desc:'Atención y notificaciones automáticas',          block:'Comunicación',   icon: IconWhats,  required:true,  route:'whatsapp' },
+  redes:    { key:'redes',    idx:4, title:'Conectar Facebook / Instagram',desc:'Entrada de leads desde tus redes sociales',      block:'Captación',      icon: IconShare,  required:true,  route:'redes' },
+  dominio:  { key:'dominio',  idx:5, title:'Configurar dominio',           desc:'Para tu landing page y funnels',                 block:'Presencia web',  icon: IconGlobe,  required:false, route:'dominio' },
+};
+
+const STORE_KEY = 'marcelo_onboarding_v1';
+
+const initialState = {
+  businessName: 'Inmobiliaria Horizonte',
+  contactName: 'María Fernanda Castillo',
+  locationId: 'loc_HRZ2042',
+  lastCheck: 'Hace 2 h · 14:20',
+  steps: { form: true, gmail: false, whatsapp: false, redes: false, dominio: null },
+  form: {
+    empresa: 'Inmobiliaria Horizonte',
+    rubro: 'Bienes raíces residenciales',
+    producto: 'Venta y alquiler de propiedades residenciales premium en Medellín y el Valle de Aburrá. Asesoría integral desde la búsqueda hasta el cierre.',
+    publico: 'Familias jóvenes y profesionales entre 30 y 50 años buscando primera vivienda o segunda propiedad en zonas como El Poblado, Envigado y Laureles.',
+    primary: '#0F1A2E',
+    secondary: '#D4A14A',
+    logoName: 'horizonte-logo.svg',
+    telefono: '+57 310 482 9105',
+    email: 'contacto@horizonte.co',
+    web: 'https://horizonte.co',
+    instagram: '@horizonte.propiedades',
+    facebook: 'facebook.com/horizontepropiedades',
+    whats: '+57 310 482 9105',
+    meet: 'https://meet.google.com/horizonte-citas',
+  },
+};
+
+function useStore() {
+  const [state, setState] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return initialState;
+  });
+  useEffect(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch {}
+  }, [state]);
+  const patch = (p) => setState(s => ({ ...s, ...p }));
+  const setStep = (k, v) => setState(s => ({ ...s, steps: { ...s.steps, [k]: v } }));
+  const setForm = (f) => setState(s => ({ ...s, form: { ...s.form, ...f } }));
+  return { state, patch, setStep, setForm, reset: () => setState(initialState) };
+}
+const StoreCtx = createContext(null);
+const useStoreCtx = () => useContext(StoreCtx);
+
+// ---------- Toast ----------
+const ToastCtx = createContext(null);
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+  const push = (t) => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts(ts => [...ts, { id, ...t }]);
+    setTimeout(() => setToasts(ts => ts.filter(x => x.id !== id)), 3400);
+  };
+  return (
+    <ToastCtx.Provider value={push}>
+      {children}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm">
+        {toasts.map(t => (
+          <div key={t.id} className="toast-in bg-navy-900 text-paper-50 rounded-lg shadow-cardHover px-4 py-3 flex items-start gap-3">
+            <div className={`mt-0.5 w-5 h-5 rounded-full grid place-items-center ${t.kind==='ok' ? 'bg-gold-400 text-navy-900' : 'bg-gold-400 text-navy-900'}`}>
+              <IconCheck size={12} stroke={2.5}/>
+            </div>
+            <div>
+              <div className="text-sm font-medium">{t.title}</div>
+              {t.desc && <div className="text-xs text-paper-300 mt-0.5">{t.desc}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </ToastCtx.Provider>
+  );
+}
+const useToast = () => useContext(ToastCtx);
+
+// ---------- Primitives ----------
+function Badge({ tone='neutral', children, size='md' }) {
+  const tones = {
+    ok:      'bg-okbg text-ok',
+    warn:    'bg-warnbg text-warn',
+    neutral: 'bg-paper-100 text-ink-700',
+    gold:    'bg-gold-100 text-gold-600',
+    navy:    'bg-navy-900 text-paper-50',
+  };
+  const sizes = { sm: 'text-[10px] px-1.5 py-0.5', md: 'text-[11px] px-2 py-0.5' };
+  return <span className={`inline-flex items-center gap-1 rounded-full uppercase tracking-[0.08em] font-medium ${tones[tone]} ${sizes[size]}`}>{children}</span>;
+}
+
+function Btn({ kind='primary', size='md', as='button', children, icon, iconRight, ...rest }) {
+  const base = 'inline-flex items-center gap-2 justify-center font-medium rounded-md transition-all ring-focus select-none';
+  const kinds = {
+    primary:   'bg-navy-900 text-paper-50 hover:bg-navy-800 shadow-sm',
+    gold:      'bg-gold-400 text-navy-900 hover:bg-gold-300 shadow-sm',
+    ghost:     'text-ink-700 hover:text-navy-900 hover:bg-paper-100',
+    outline:   'border hairline-strong text-navy-900 hover:bg-paper-100',
+    quiet:     'text-navy-900 hover:bg-paper-100',
+  };
+  const sizes = { sm: 'text-xs px-3 h-8', md: 'text-sm px-4 h-10', lg: 'text-[15px] px-5 h-12' };
+  const Cmp = as;
+  return (
+    <Cmp className={`${base} ${kinds[kind]} ${sizes[size]}`} {...rest}>
+      {icon}{children}{iconRight}
+    </Cmp>
+  );
+}
+
+function Card({ children, className='', hover=false, as='div', ...rest }) {
+  const Cmp = as;
+  return (
+    <Cmp className={`bg-white border hairline rounded-xl shadow-card ${hover ? 'hover:shadow-cardHover transition-shadow' : ''} ${className}`} {...rest}>
+      {children}
+    </Cmp>
+  );
+}
+
+function StatusIcon({ status, size=20 }) {
+  if (status === true) return <span className="w-5 h-5 rounded-full bg-ok text-white grid place-items-center"><IconCheck size={12} stroke={3}/></span>;
+  if (status === 'error') return <span className="w-5 h-5 rounded-full bg-warn text-white grid place-items-center"><IconAlert size={12} stroke={2.5}/></span>;
+  return <span className="w-5 h-5 rounded-full border-2 hairline-strong grid place-items-center bg-white" />;
+}
+
+// ---------- Header ----------
+function Header({ locationId, businessName, progress, loading }) {
+  const { done, total } = progress;
+  const pct = total ? Math.round((done/total) * 100) : 0;
+  return (
+    <header className="bg-navy-900 text-paper-50 relative overflow-hidden noise">
+      <div className="absolute inset-0 grid-bg opacity-60" />
+      <div className="max-w-6xl mx-auto px-6 lg:px-10 relative">
+        <div className="flex items-center justify-between py-4 border-b border-white/10">
+          <a href={`#/${locationId}`} className="flex items-center gap-2 group">
+            <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-9 h-9 object-contain" />
+            <div className="leading-tight">
+              <div className="font-serif text-[18px] text-paper-50">Marcelo <span className="italic text-gold-300">CRM</span></div>
+              <div className="text-[10px] uppercase tracking-[0.14em] text-paper-300/70">Portal de onboarding</div>
+            </div>
+          </a>
+          <div className="hidden md:flex items-center gap-3 text-xs text-paper-300/80">
+            <span className="font-mono">{locationId}</span>
+            <span className="w-1 h-1 rounded-full bg-paper-300/40" />
+            <span className="flex items-center gap-1.5"><IconClock size={12}/> Verificado hace 2 h</span>
+          </div>
+        </div>
+
+        <div className="py-10 lg:py-14 grid lg:grid-cols-12 gap-8 items-end">
+          <div className="lg:col-span-7">
+            <div className="text-xs uppercase tracking-[0.18em] text-gold-300 mb-3">Bienvenida, María Fernanda</div>
+            <h1 className="font-serif text-[44px] lg:text-[60px] leading-[1.02] text-paper-50">
+              Conectemos <span className="italic text-gold-300">{businessName}</span><br/>
+              con las herramientas correctas.
+            </h1>
+            <p className="mt-5 text-paper-300/90 text-[15px] max-w-xl leading-relaxed">
+              Cinco pasos rápidos para dejar tu CRM listo: integraciones con tus canales de comunicación, fuentes de leads y presencia web. La mayoría toma menos de 5 minutos.
+            </p>
+          </div>
+
+          <div className="lg:col-span-5">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
+              <div className="flex items-baseline justify-between mb-3">
+                <div className="text-xs uppercase tracking-[0.12em] text-paper-300/80">Progreso general</div>
+                <div className="text-xs text-paper-300/60">{pct}%</div>
+              </div>
+              <div className="flex items-baseline gap-2 mb-4">
+                {loading ? (
+                  <div className="skeleton h-9 w-24" />
+                ) : (
+                  <>
+                    <span className="font-serif text-5xl text-paper-50 num-pill">{done}</span>
+                    <span className="text-ink-400/90">/ {total}</span>
+                    <span className="ml-2 text-xs text-paper-300/70">pasos completados</span>
+                  </>
+                )}
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gold-400 transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="mt-3 flex gap-1">
+                {Array.from({length: total}).map((_,i) => (
+                  <div key={i} className={`h-1 flex-1 rounded-full ${i < done ? 'bg-gold-400' : 'bg-white/10'}`} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ---------- Skeleton rows ----------
+function SkeletonChecklist() {
+  return (
+    <div className="space-y-10">
+      {[1,2,3,4].map(i => (
+        <div key={i}>
+          <div className="skeleton h-4 w-40 mb-4" />
+          <div className="skeleton h-24 w-full rounded-xl" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------- Home page ----------
+function HomePage() {
+  const { state, setStep } = useStoreCtx();
+  const { navigate } = useRoute();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 900); return () => clearTimeout(t); }, []);
+
+  const blocks = useMemo(() => {
+    const grouped = {};
+    Object.values(STEPS_META).forEach(m => {
+      grouped[m.block] = grouped[m.block] || [];
+      grouped[m.block].push(m);
+    });
+    return Object.entries(grouped);
+  }, []);
+
+  const requiredKeys = Object.values(STEPS_META).filter(m => m.required).map(m => m.key);
+  const done = requiredKeys.filter(k => state.steps[k] === true).length + (state.steps.dominio === true ? 1 : 0);
+  const total = 5;
+
+  const nextPending = useMemo(() => {
+    return Object.values(STEPS_META).find(m => m.required && state.steps[m.key] !== true);
+  }, [state.steps]);
+
+  return (
+    <div>
+      <Header locationId={state.locationId} businessName={state.businessName} progress={{ done, total }} loading={loading} />
+
+      <main className="max-w-6xl mx-auto px-6 lg:px-10 py-12 lg:py-16">
+
+        {/* intro row */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 pb-6 border-b hairline">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.18em] text-ink-500 mb-2">Tu checklist</div>
+            <h2 className="font-serif text-3xl lg:text-4xl text-navy-900">5 pasos para activar tu cuenta</h2>
+          </div>
+          {nextPending && (
+            <Btn kind="gold" size="lg" onClick={() => navigate(nextPending.route)} iconRight={<IconArrowRight size={16}/>}>
+              Ver siguiente paso pendiente
+            </Btn>
+          )}
+          {!nextPending && <Badge tone="ok" size="md">Todos los requeridos completos</Badge>}
+        </div>
+
+        {loading ? <SkeletonChecklist /> : (
+          <div className="space-y-12 fade-in">
+            {blocks.map(([blockName, items], bi) => (
+              <section key={blockName} className="grid lg:grid-cols-12 gap-6 lg:gap-10">
+                <div className="lg:col-span-3">
+                  <div className="flex items-start gap-3">
+                    <div className="font-serif text-4xl text-gold-400 leading-none num-pill">0{bi+1}</div>
+                    <div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-ink-500">Bloque</div>
+                      <div className="font-serif text-xl text-navy-900 mt-0.5">{blockName}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="lg:col-span-9 space-y-3">
+                  {items.map(meta => (
+                    <StepCard key={meta.key} meta={meta} status={state.steps[meta.key]} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+
+        {/* Footer note */}
+        <div className="mt-16 pt-8 border-t hairline flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-start gap-3 text-sm text-ink-500">
+            <div className="mt-0.5 w-7 h-7 rounded-md bg-paper-100 grid place-items-center flex-shrink-0">
+              <IconSpark size={14} />
+            </div>
+            <div>
+              <div className="text-ink-700">Verificación automática cada 6 horas</div>
+              <div className="text-xs text-ink-500 mt-0.5">n8n revisa el estado de tus integraciones y actualiza este panel. Última revisión: {state.lastCheck}.</div>
+            </div>
+          </div>
+          <div className="text-xs text-ink-500 font-mono">{state.locationId}</div>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function StepCard({ meta, status }) {
+  const { navigate } = useRoute();
+  const Icon = meta.icon;
+  const statusLabel = status === true ? 'Completado' : status === 'error' ? 'Requiere atención' : meta.required ? 'Requerido' : 'Opcional';
+  const statusTone  = status === true ? 'ok' : status === 'error' ? 'warn' : meta.required ? 'navy' : 'neutral';
+  const stateClasses = status === true
+    ? 'bg-white border-ok/20'
+    : status === 'error' ? 'bg-white border-warn/30' : 'bg-white';
+
+  return (
+    <Card
+      as="button"
+      onClick={() => navigate(meta.route)}
+      hover
+      className={`w-full text-left p-5 flex items-center gap-5 group ${stateClasses}`}
+    >
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <StatusIcon status={status} />
+          <span className="text-[10px] font-mono text-ink-500 num-pill">0{meta.idx}</span>
+        </div>
+        <div className="w-px self-stretch vert-dash" />
+        <div className="w-11 h-11 rounded-lg bg-paper-100 text-navy-900 grid place-items-center flex-shrink-0 group-hover:bg-gold-100 transition-colors">
+          <Icon size={20} />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-[15px] text-navy-900">{meta.title}</span>
+            <Badge tone={statusTone} size="sm">{statusLabel}</Badge>
+          </div>
+          <div className="text-sm text-ink-500 mt-0.5 truncate">{meta.desc}</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 text-ink-500 group-hover:text-navy-900 transition-colors flex-shrink-0">
+        <span className="hidden sm:inline text-xs">{status === true ? 'Ver detalles' : 'Configurar'}</span>
+        <IconArrowRight size={16}/>
+      </div>
+    </Card>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="border-t hairline mt-16 py-8">
+      <div className="max-w-6xl mx-auto px-6 lg:px-10 flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-xs text-ink-500">
+        <div className="flex items-center gap-3">
+          <span className="font-serif text-sm text-navy-900">Marcelo <span className="italic text-gold-500">CRM</span></span>
+          <span>· Portal privado · No comparta su enlace</span>
+        </div>
+        <div className="flex gap-5">
+          <a href="#" className="hover:text-navy-900">Soporte</a>
+          <a href="#" className="hover:text-navy-900">WhatsApp: +57 310 482 9105</a>
+          <a href="#" className="hover:text-navy-900">Privacidad</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ---------- Detail layout ----------
+function DetailLayout({ step, children }) {
+  const { state } = useStoreCtx();
+  const { navigate, locationId } = useRoute();
+  const Icon = step.icon;
+  const status = state.steps[step.key];
+  const completed = status === true;
+
+  return (
+    <div>
+      {/* compact navy header */}
+      <header className="bg-navy-900 text-paper-50 relative overflow-hidden noise">
+        <div className="absolute inset-0 grid-bg opacity-60" />
+        <div className="max-w-5xl mx-auto px-6 lg:px-10 relative">
+          <div className="flex items-center justify-between py-4 border-b border-white/10">
+            <a href={`#/${locationId}`} className="flex items-center gap-2">
+              <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-9 h-9 object-contain" />
+              <div className="font-serif text-[18px]">Marcelo <span className="italic text-gold-300">CRM</span></div>
+            </a>
+            <div className="hidden md:flex items-center gap-3 text-xs text-paper-300/80">
+              <span className="font-mono">{state.locationId}</span>
+            </div>
+          </div>
+          <div className="py-6">
+            <button onClick={() => navigate('home')} className="inline-flex items-center gap-1.5 text-xs text-paper-300 hover:text-gold-300 mb-5 transition-colors">
+              <IconArrowLeft size={14}/> Volver al checklist
+            </button>
+            <div className="flex items-start gap-5">
+              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-gold-300 flex-shrink-0">
+                <Icon size={26} />
+              </div>
+              <div className="flex-1">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-gold-300 mb-1">Paso 0{step.idx} · {step.block}</div>
+                <h1 className="font-serif text-3xl lg:text-[40px] leading-tight">{step.title}</h1>
+                <p className="text-paper-300/80 text-sm mt-2 max-w-xl">{step.desc}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main className="max-w-5xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
+        {/* status banner */}
+        <div className={`mb-10 rounded-xl border p-5 flex flex-wrap items-center gap-4 ${completed ? 'bg-okbg border-ok/20' : 'bg-warnbg border-warn/20'}`}>
+          <div className={`w-10 h-10 rounded-full grid place-items-center ${completed ? 'bg-ok text-white' : 'bg-warn text-white'}`}>
+            {completed ? <IconCheck size={18} stroke={3}/> : <IconAlert size={18} stroke={2}/>}
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <div className={`text-[11px] uppercase tracking-[0.14em] ${completed ? 'text-ok' : 'text-warn'}`}>{completed ? 'Conectado' : 'Pendiente'}</div>
+            <div className={`font-medium ${completed ? 'text-ok' : 'text-warn'}`}>
+              {completed ? 'Conectado correctamente' : 'Pendiente de conexión'}
+            </div>
+          </div>
+          {!step.required && <Badge tone="neutral">Opcional</Badge>}
+          {step.required && <Badge tone={completed ? 'ok' : 'warn'}>{completed ? 'Listo' : 'Requerido'}</Badge>}
+        </div>
+        {children}
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}
+
+function InstructionsList({ items }) {
+  return (
+    <ol className="space-y-0">
+      {items.map((it, i) => (
+        <li key={i} className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1 py-5 border-b hairline last:border-b-0">
+          <div className="flex flex-col items-center">
+            <span className="w-8 h-8 rounded-full bg-navy-900 text-paper-50 grid place-items-center font-serif text-[15px] num-pill">{i+1}</span>
+            {i < items.length - 1 && <span className="w-px flex-1 mt-1 vert-dash" />}
+          </div>
+          <div className="pb-1">
+            <div className="font-medium text-navy-900 text-[15px]">{it.title}</div>
+            {it.sub && <div className="text-sm text-ink-500 mt-1 leading-relaxed">{it.sub}</div>}
+            {it.code && (
+              <div className="mt-2 inline-flex items-center gap-2 bg-paper-100 border hairline rounded-md px-2.5 py-1.5 text-xs font-mono text-navy-900">
+                {it.code}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function VideoCard({ title='Ver tutorial en video', duration='3:42' }) {
+  return (
+    <div className="relative rounded-xl overflow-hidden border hairline group cursor-pointer">
+      <div className="aspect-video bg-navy-900 relative">
+        <div className="absolute inset-0 grid-bg opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-navy-800/40 via-transparent to-navy-950/60" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-gold-400 text-navy-900 grid place-items-center shadow-lg group-hover:scale-110 transition-transform">
+            <IconPlay size={22} />
+          </div>
+        </div>
+        <div className="absolute bottom-3 right-3 text-[11px] font-mono text-paper-300/80 bg-black/30 px-2 py-0.5 rounded">
+          {duration}
+        </div>
+        <div className="absolute top-3 left-3 text-[10px] uppercase tracking-[0.14em] text-gold-300 bg-navy-900/60 border border-white/10 px-2 py-0.5 rounded">
+          Tutorial
+        </div>
+      </div>
+      <div className="p-4 bg-white flex items-center justify-between">
+        <div>
+          <div className="text-sm font-medium text-navy-900">{title}</div>
+          <div className="text-xs text-ink-500 mt-0.5">Paso a paso, con ejemplos reales</div>
+        </div>
+        <IconArrowRight size={16}/>
+      </div>
+    </div>
+  );
+}
+
+function FAQ({ items }) {
+  return (
+    <div className="border hairline rounded-xl bg-white overflow-hidden">
+      {items.map((it, i) => (
+        <details key={i} className={`group ${i>0 ? 'border-t hairline' : ''}`}>
+          <summary className="flex items-center justify-between px-5 py-4 hover:bg-paper-50 transition-colors">
+            <span className="text-[15px] font-medium text-navy-900 pr-4">{it.q}</span>
+            <IconChevDown size={18} className="chev text-ink-500 flex-shrink-0" />
+          </summary>
+          <div className="px-5 pb-5 text-sm text-ink-700 leading-relaxed border-t hairline pt-4 bg-paper-50/50">
+            {it.a}
+          </div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function DetailActions({ stepKey }) {
+  const { state, setStep } = useStoreCtx();
+  const toast = useToast();
+  const { navigate } = useRoute();
+  const status = state.steps[stepKey];
+  const completed = status === true;
+
+  const markDone = () => {
+    setStep(stepKey, true);
+    toast({ kind:'ok', title:'Paso marcado como completado', desc:'Actualizaremos tu checklist en la próxima verificación.' });
+    setTimeout(() => navigate('home'), 900);
+  };
+  const markUndone = () => {
+    setStep(stepKey, false);
+    toast({ title:'Paso marcado como pendiente' });
+  };
+
+  return (
+    <div className="mt-10 pt-8 border-t hairline flex flex-wrap items-center justify-between gap-4">
+      <div className="text-xs text-ink-500 max-w-md">
+        <span className="text-ink-700 font-medium">¿Problemas?</span> Escríbenos por WhatsApp al <span className="font-mono text-navy-900">+57 310 482 9105</span> y te ayudamos a configurarlo en vivo.
+      </div>
+      <div className="flex gap-2">
+        {completed && <Btn kind="outline" onClick={markUndone}>Marcar como pendiente</Btn>}
+        {!completed && <Btn kind="gold" size="lg" onClick={markDone} icon={<IconCheck size={16} stroke={2.5}/>}>Marcar como completado</Btn>}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Detail pages ----------
+function GmailPage() {
+  const step = STEPS_META.gmail;
+  return (
+    <DetailLayout step={step}>
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7">
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Cómo conectarlo</h2>
+          <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 3 minutos · No requiere conocimientos técnicos.</p>
+          <InstructionsList items={[
+            { title:'Abre tu subcuenta en GoHighLevel', sub:'Usa el link que te enviamos al correo. Si no lo encuentras, búscalo como "Bienvenida a Marcelo CRM" en tu bandeja.' },
+            { title:'Ve a Settings → Integrations', sub:'En el menú lateral izquierdo, al final, haz clic en "Settings" (tuerca) y luego en "Integrations".' },
+            { title:'Busca "Google" y haz clic en Connect', sub:'Aparecerá una ventana de Google solicitando permisos de acceso al correo y al calendario.' },
+            { title:'Autoriza con la cuenta Gmail del negocio', sub:'Importante: usa la cuenta del negocio, no tu cuenta personal. Esto evita confusiones con las citas de clientes.' },
+            { title:'Selecciona el calendario principal', sub:'Elige el calendario donde quieres recibir las citas reservadas por tus clientes. Puedes tener varios calendarios conectados más adelante.' },
+          ]}/>
+        </div>
+        <aside className="lg:col-span-5 space-y-6">
+          <VideoCard duration="3:42"/>
+          <div className="rounded-xl bg-paper-100 border hairline p-5">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-ink-500 mb-2">Qué obtienes</div>
+            <ul className="space-y-2.5 text-sm text-ink-700">
+              {['Sincronización de citas con tu calendario','Envío y recepción de correos desde el CRM','Recordatorios automáticos por email','Registro histórico por cada contacto'].map(x => (
+                <li key={x} className="flex items-start gap-2.5">
+                  <span className="mt-1 w-4 h-4 rounded-full bg-ok/10 text-ok grid place-items-center flex-shrink-0"><IconCheck size={10} stroke={3}/></span>
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      </div>
+      <div className="mt-14">
+        <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
+        <FAQ items={[
+          { q:'¿Debo usar mi cuenta personal o la del negocio?', a:'Siempre la cuenta del negocio. Todas las citas y correos que gestione tu equipo quedarán bajo esa cuenta, y evitarás perder acceso si cambias de correo personal.' },
+          { q:'¿Qué permisos estoy otorgando a Google?', a:'Acceso para leer y enviar correos, y para crear o modificar eventos en el calendario seleccionado. Puedes revocar el acceso cuando quieras desde la sección de seguridad de tu cuenta Google.' },
+          { q:'¿Puedo conectar varias cuentas Gmail más adelante?', a:'Sí. Puedes repetir este proceso con cuentas de asesores individuales desde la misma sección de Integrations.' },
+          { q:'Si cambio de contraseña de Gmail, ¿se desconecta?', a:'No. La conexión usa un token seguro que sobrevive al cambio de contraseña. Solo se desconecta si revocas el acceso manualmente o lo haces desde el CRM.' },
+        ]}/>
+      </div>
+      <DetailActions stepKey="gmail" />
+    </DetailLayout>
+  );
+}
+
+function WhatsPage() {
+  const step = STEPS_META.whatsapp;
+  return (
+    <DetailLayout step={step}>
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7">
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Cómo conectarlo</h2>
+          <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 10–20 minutos · Requiere verificación Meta Business.</p>
+          <InstructionsList items={[
+            { title:'Asegúrate de tener una cuenta de WhatsApp Business activa', sub:'No confundir con WhatsApp personal. Si aún no la tienes, descarga "WhatsApp Business" y regístrala con el número del negocio.' },
+            { title:'En GoHighLevel, ve a Settings → Phone Numbers', sub:'Encontrarás la opción en el menú lateral, dentro de la configuración de la subcuenta.' },
+            { title:'Selecciona "WhatsApp" e inicia la verificación', sub:'El sistema te redirigirá a Meta Business Suite para iniciar el proceso oficial de verificación.' },
+            { title:'Completa Meta Business Verification', sub:'Meta pedirá documentos de la empresa (RUT, cámara de comercio o equivalente). Revisión promedio: 1–3 días hábiles.' },
+            { title:'Asigna el número a tu subcuenta', sub:'Cuando Meta apruebe, vuelve al CRM y asigna el número verificado. A partir de ese momento, todos los mensajes entran al panel unificado.' },
+          ]}/>
+        </div>
+        <aside className="lg:col-span-5 space-y-6">
+          <VideoCard duration="6:18"/>
+          <div className="rounded-xl border border-warn/20 bg-warnbg p-5">
+            <div className="flex items-start gap-3">
+              <IconAlert size={18} className="text-warn flex-shrink-0 mt-0.5"/>
+              <div>
+                <div className="text-sm font-medium text-warn">Este paso toma más tiempo</div>
+                <div className="text-xs text-warn/80 mt-1.5 leading-relaxed">
+                  La verificación de Meta es externa y puede tardar entre 1 y 3 días hábiles. Puedes continuar con los otros pasos mientras tanto.
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+      <div className="mt-14">
+        <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
+        <FAQ items={[
+          { q:'¿Puedo usar el mismo número que ya tengo en WhatsApp?', a:'Solo si no está activo en WhatsApp personal. Meta requiere que el número esté exclusivamente en WhatsApp Business API. Si ya lo usas en personal, tendrás que desvincularlo primero.' },
+          { q:'¿Qué documentos pide Meta para verificar?', a:'Típicamente: nombre legal del negocio, dirección verificable, sitio web o red social activa, y un documento que pruebe la existencia legal (RUT, cámara de comercio o equivalente).' },
+          { q:'¿Cuánto cuesta enviar mensajes desde WhatsApp Business API?', a:'Meta cobra por conversación según país y tipo (marketing, utilidad, servicio, autenticación). Para Colombia, rondan entre USD $0.005 y $0.04 por conversación. Hay 1000 conversaciones gratis al mes de servicio.' },
+          { q:'¿Puedo automatizar respuestas?', a:'Sí. Una vez conectado, podrás crear flujos automáticos desde el constructor de automatizaciones del CRM.' },
+        ]}/>
+      </div>
+      <DetailActions stepKey="whatsapp" />
+    </DetailLayout>
+  );
+}
+
+function RedesPage() {
+  const step = STEPS_META.redes;
+  return (
+    <DetailLayout step={step}>
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7">
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Cómo conectarlo</h2>
+          <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 4 minutos · Necesitas ser administrador de la página.</p>
+          <InstructionsList items={[
+            { title:'Ve a Settings → Integrations en GoHighLevel', sub:'Encontrarás integraciones nativas con Facebook e Instagram en la misma sección que Google.' },
+            { title:'Busca "Facebook" y haz clic en Connect', sub:'Una ventana emergente te llevará al login de Facebook. Permite ventanas emergentes en tu navegador.' },
+            { title:'Inicia sesión con el perfil administrador', sub:'Importante: debes ser administrador de la Página, no solo editor. Si no lo eres, pide el acceso primero.' },
+            { title:'Selecciona la Página correcta', sub:'Si administras varias páginas, marca únicamente la del negocio. Puedes conectar más adelante si lo necesitas.' },
+            { title:'Autoriza acceso a Instagram si está vinculado', sub:'Si tu Instagram está conectado a esa Página como cuenta profesional, aparecerá automáticamente en la misma autorización.' },
+          ]}/>
+        </div>
+        <aside className="lg:col-span-5 space-y-6">
+          <VideoCard duration="4:12"/>
+          <div className="rounded-xl bg-paper-100 border hairline p-5">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-ink-500 mb-3">Leads que podrás capturar</div>
+            <div className="space-y-2.5 text-sm">
+              {[
+                { src:'Formularios de Facebook Lead Ads', desc:'Entran automáticamente al CRM' },
+                { src:'Mensajes Messenger',              desc:'Bandeja unificada con WhatsApp y correo' },
+                { src:'DMs de Instagram',                desc:'Respuestas desde el mismo panel' },
+                { src:'Comentarios en publicaciones',    desc:'Respuesta privada automatizada (opcional)' },
+              ].map(x => (
+                <div key={x.src} className="flex items-start gap-2.5">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" />
+                  <div>
+                    <span className="text-navy-900 font-medium">{x.src}</span>
+                    <span className="text-ink-500"> — {x.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </div>
+      <div className="mt-14">
+        <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
+        <FAQ items={[
+          { q:'¿Qué pasa si no soy administrador de la página?', a:'No podrás completar la conexión. Pide al administrador actual que te asigne el rol de Admin desde la sección de Roles de Página en Facebook Business Suite.' },
+          { q:'¿Necesito tener cuenta profesional de Instagram?', a:'Sí. Instagram debe estar configurado como cuenta profesional o de creador, y estar vinculado a una Página de Facebook. Puedes cambiarlo gratis desde la app de Instagram.' },
+          { q:'¿Se mostrarán mis leads existentes?', a:'Solo los nuevos que entren a partir de la conexión. Los históricos de Facebook Lead Ads puedes importarlos aparte si lo necesitas.' },
+          { q:'¿Qué datos ve el CRM de mis perfiles?', a:'Únicamente los mensajes, formularios y comentarios públicos que gestionas como página. No accede a tu perfil personal ni a mensajes privados de tu cuenta personal.' },
+        ]}/>
+      </div>
+      <DetailActions stepKey="redes" />
+    </DetailLayout>
+  );
+}
+
+function DominioPage() {
+  const step = STEPS_META.dominio;
+  return (
+    <DetailLayout step={step}>
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7">
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Cómo conectarlo</h2>
+          <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 15–30 minutos · Requiere acceso a tu proveedor de dominio.</p>
+          <InstructionsList items={[
+            { title:'Accede a tu proveedor de dominio', sub:'GoDaddy, Namecheap, Hostinger, Dynadot, Google Domains, etc. Usa la cuenta con la que registraste el dominio.' },
+            { title:'Agrega un registro CNAME', sub:'Busca la sección "DNS" o "Zona DNS" y añade un nuevo registro tipo CNAME. El host suele ser "@" o el subdominio (ej: "www").', code:'hosted.gohighlevel.com' },
+            { title:'En GoHighLevel, ve a Settings → Domains', sub:'Añade tu dominio exacto tal como lo quieres publicar (con o sin www, pero sé consistente).' },
+            { title:'Haz clic en Verify', sub:'El sistema consultará los DNS. Si acabas de hacer el cambio, puede que aún no esté propagado.' },
+            { title:'Espera 15–30 minutos para la propagación', sub:'Los DNS pueden tardar hasta 24 h en algunos casos. Si después de una hora sigue sin verificar, revisa que el CNAME esté bien escrito.' },
+          ]}/>
+        </div>
+        <aside className="lg:col-span-5 space-y-6">
+          <VideoCard duration="5:05"/>
+          <div className="rounded-xl bg-paper-100 border hairline p-5">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-ink-500 mb-2">¿Necesitas este paso?</div>
+            <p className="text-sm text-ink-700 leading-relaxed">
+              Es <strong className="text-navy-900">opcional</strong>. Solo si planeas publicar landing pages, funnels o una web bajo tu propio dominio. Puedes completarlo más adelante sin afectar los otros pasos.
+            </p>
+          </div>
+        </aside>
+      </div>
+      <div className="mt-14">
+        <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
+        <FAQ items={[
+          { q:'¿Puedo usar un subdominio en lugar del dominio principal?', a:'Sí, es lo más recomendable. Por ejemplo: "paginas.tu-dominio.com" — así no afectas tu sitio principal si ya existe.' },
+          { q:'Ya tengo una página web, ¿voy a perderla?', a:'No, siempre que uses un subdominio diferente. Si conectas el dominio raíz (tu-dominio.com), sustituirá lo que haya ahí.' },
+          { q:'¿Incluye certificado SSL (https)?', a:'Sí. Una vez verificado el dominio, el CRM emite automáticamente un certificado SSL gratuito en unos minutos.' },
+          { q:'¿Qué pasa si el dominio aún no propaga?', a:'Espera al menos 1 hora. Si sigue sin verificar, usa una herramienta como dnschecker.org para confirmar que el CNAME esté visible globalmente.' },
+        ]}/>
+      </div>
+      <DetailActions stepKey="dominio" />
+    </DetailLayout>
+  );
+}
+
+// ---------- Formulario Wizard (Step 1) ----------
+
+const RUBROS = [
+  { id:'inmobiliaria',  label:'Inmobiliaria',       desc:'Venta o alquiler de propiedades', emoji:'▦' },
+  { id:'seguros',       label:'Seguros',            desc:'Corretaje, pólizas, asesoría',    emoji:'◈' },
+  { id:'consultoria',   label:'Consultoría',        desc:'B2B, estrategia, coaching',       emoji:'◎' },
+  { id:'educacion',     label:'Educación',          desc:'Cursos, academias, EdTech',       emoji:'✦' },
+  { id:'salud',         label:'Salud y bienestar',  desc:'Clínicas, consultorios, spa',     emoji:'♡' },
+  { id:'servicios',     label:'Servicios locales',  desc:'Reformas, limpieza, talleres',    emoji:'◉' },
+  { id:'ecommerce',     label:'Comercio / retail',  desc:'Venta online u offline',          emoji:'◐' },
+  { id:'otro',          label:'Otro',               desc:'Cuéntanos cuál',                  emoji:'＋' },
+];
+
+const TONOS = [
+  { id:'cercano',      label:'Cercano',      desc:'Natural, cálido, como un amigo' },
+  { id:'profesional',  label:'Profesional',  desc:'Formal, claro, con autoridad' },
+  { id:'directo',      label:'Directo',      desc:'Al grano, sin rodeos' },
+  { id:'inspirador',   label:'Inspirador',   desc:'Aspiracional, motivador' },
+];
+
+const WIZARD_STEPS = [
+  { id:'identidad', title:'Identidad del negocio', desc:'Lo básico sobre tu empresa y a quién te diriges.' },
+  { id:'voz',       title:'Voz y marca',           desc:'Cómo te reconocemos visualmente y cómo suenas.' },
+  { id:'contacto',  title:'Contacto operativo',    desc:'Datos que aparecerán en comunicaciones.' },
+  { id:'canales',   title:'Redes y canales',       desc:'De dónde vienen tus leads y dónde los atiendes.' },
+];
+
+function validate(k, v) {
+  const s = (v ?? '').toString().trim();
+  const REQ = ['empresa','rubro','producto','publico','tono','telefono','email'];
+  if (REQ.includes(k) && !s) return 'Este campo es obligatorio';
+  if (k === 'email' && s && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return 'Formato de correo inválido';
+  if (k === 'telefono' && s && s.replace(/\D/g,'').length < 7) return 'Número demasiado corto';
+  if (k === 'web' && s && !/^https?:\/\//i.test(s)) return 'Debe empezar con http:// o https://';
+  return null;
+}
+
+const STEP_FIELDS = {
+  identidad: ['empresa','rubro','producto','publico'],
+  voz:       ['tono','primary','secondary'],
+  contacto:  ['telefono','email','web'],
+  canales:   ['instagram','facebook','whats','meet'],
+};
+
+function stepIsValid(stepId, draft) {
+  return STEP_FIELDS[stepId].every(k => !validate(k, draft[k]));
+}
+
+function FormSkeleton({ kind='identidad' }) {
+  const Bar = ({ w='100%', h=12, className='' }) => (
+    <div className={`skeleton ${className}`} style={{ width: w, height: h }} />
+  );
+  const Field = ({ rows=1 }) => (
+    <div className="rounded-md border border-paper-300 bg-paper-50 px-4 pt-4 pb-3" style={{ minHeight: rows>1 ? 110 : 56 }}>
+      <Bar w="38%" h={9} className="mb-3" />
+      {Array.from({ length: rows }).map((_,i) => (
+        <Bar key={i} w={i === rows-1 ? '64%' : '92%'} h={10} className={i ? 'mt-2' : ''} />
+      ))}
+    </div>
+  );
+  const Chip = () => (
+    <div className="rounded-md border border-paper-300 bg-paper-50 p-3.5">
+      <Bar w={22} h={14} className="mb-2.5" />
+      <Bar w="70%" h={11} className="mb-1.5" />
+      <Bar w="55%" h={9} />
+    </div>
+  );
+  const ColorField = () => (
+    <div className="rounded-md border border-paper-300 bg-paper-50 px-4 pt-4 pb-3">
+      <Bar w="38%" h={9} className="mb-3" />
+      <div className="flex items-center gap-3">
+        <div className="skeleton rounded-md" style={{ width: 28, height: 28 }} />
+        <Bar w="52%" h={11} />
+      </div>
+    </div>
+  );
+  if (kind === 'voz') {
+    return (
+      <div className="mt-8 space-y-8" aria-busy="true" aria-live="polite">
+        <div>
+          <Bar w={140} h={10} className="mb-3" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_,i) => <Chip key={i} />)}
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-5">
+          <ColorField /><ColorField />
+          <div className="md:col-span-2 rounded-md border border-paper-300 bg-paper-50 p-6">
+            <Bar w="32%" h={10} className="mb-3" />
+            <div className="border-2 border-dashed border-paper-300 rounded-md p-8 flex flex-col items-center gap-3">
+              <div className="skeleton rounded-full" style={{ width: 40, height: 40 }} />
+              <Bar w="40%" h={11} />
+              <Bar w="28%" h={9} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (kind === 'contacto') {
+    return (
+      <div className="grid md:grid-cols-2 gap-5 mt-8" aria-busy="true" aria-live="polite">
+        <Field /><Field />
+        <div className="md:col-span-2"><Field /></div>
+      </div>
+    );
+  }
+  if (kind === 'canales') {
+    return (
+      <div className="grid md:grid-cols-2 gap-5 mt-8" aria-busy="true" aria-live="polite">
+        <Field /><Field /><Field /><Field />
+      </div>
+    );
+  }
+  // identidad (default)
+  return (
+    <div className="grid md:grid-cols-2 gap-5 mt-8" aria-busy="true" aria-live="polite">
+      <Field />
+      <div className="md:col-span-2">
+        <Bar w={120} h={10} className="mb-3" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {Array.from({ length: 6 }).map((_,i) => <Chip key={i} />)}
+        </div>
+      </div>
+      <div className="md:col-span-2"><Field rows={3} /></div>
+      <div className="md:col-span-2"><Field rows={3} /></div>
+    </div>
+  );
+}
+
+function FormularioPage() {
+  const step = STEPS_META.form;
+  const { state, setForm, setStep } = useStoreCtx();
+  const toast = useToast();
+  const { navigate } = useRoute();
+
+  const locationId = useMemo(() => {
+    try { return new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3'; }
+    catch { return 'BrAkzvwuSYdO3sDC9DL3'; }
+  }, []);
+
+  const [draft, setDraft] = useState(() => locationId
+    ? { tono:'cercano', empresa:'', rubro:'', producto:'', publico:'', primary:'', secondary:'', logoName:'', telefono:'', email:'', web:'', instagram:'', facebook:'', whats:'', meet:'' }
+    : { tono:'cercano', ...state.form });
+  const [loading, setLoading] = useState(!!locationId);
+  const [stepIdx, setStepIdx] = useState(0);
+  const [dir, setDir] = useState(1); // 1 forward, -1 back
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [confirmed, setConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (!locationId) return;
+    let cancelled = false;
+    fetch(`https://n8n.dimetrics.com.co/webhook-test/onboarding-load?loc=${encodeURIComponent(locationId)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled || !data) return;
+        setDraft(prev => ({
+          ...prev,
+          empresa:    data.nombre_empresa    ?? prev.empresa    ?? '',
+          rubro:      data.sector            ?? prev.rubro      ?? '',
+          producto:   data.producto          ?? prev.producto   ?? '',
+          publico:    data.publico           ?? prev.publico    ?? '',
+          tono:       data.tono              || prev.tono,
+          primary:    data.color_primario    || prev.primary    || '#0F1A2E',
+          secondary:  data.color_secundario  || prev.secondary  || '#D4A14A',
+          logoName:   data.logo              ?? prev.logoName   ?? '',
+          instagram:  data.instagram         ?? prev.instagram  ?? '',
+          whats:      data.whatsapp          ?? prev.whats      ?? '',
+          facebook:   data.facebook          ?? prev.facebook   ?? '',
+        }));
+      })
+      .catch(err => console.error('Error:', err))
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [locationId]);
+  const [splashDone, setSplashDone] = useState(() => {
+    try { return sessionStorage.getItem('marcelo_splash_done') === '1'; } catch { return false; }
+  });
+  const [fadingOut, setFadingOut] = useState(false);
+  const leaveSplash = () => {
+    if (fadingOut) return;
+    setFadingOut(true);
+    setTimeout(() => {
+      try { sessionStorage.setItem('marcelo_splash_done','1'); } catch {}
+      setSplashDone(true);
+    }, 800);
+  };
+
+  if (!splashDone) {
+    return <SplashScreen fadingOut={fadingOut} onContinue={leaveSplash} />;
+  }
+
+  const inReview = stepIdx === WIZARD_STEPS.length;
+  const currentStep = WIZARD_STEPS[stepIdx] || WIZARD_STEPS[WIZARD_STEPS.length - 1];
+  const isLast = stepIdx === WIZARD_STEPS.length - 1;
+  const canAdvance = loading ? false : (inReview ? true : stepIsValid(currentStep.id, draft));
+
+  const update = (k, v) => {
+    setDraft(d => ({ ...d, [k]: v }));
+    if (touched[k]) {
+      const err = validate(k, v);
+      setErrors(e => ({ ...e, [k]: err }));
+    }
+  };
+  const blur = (k) => {
+    setTouched(t => ({ ...t, [k]: true }));
+    setErrors(e => ({ ...e, [k]: validate(k, draft[k]) }));
+  };
+
+  const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+
+  const next = async () => {
+    // mark every field in step as touched so inline errors appear
+    const t = { ...touched };
+    const e = { ...errors };
+    STEP_FIELDS[currentStep.id].forEach(k => { t[k] = true; e[k] = validate(k, draft[k]); });
+    setTouched(t); setErrors(e);
+    if (!STEP_FIELDS[currentStep.id].every(k => !e[k])) return;
+
+    // POST current data to n8n before advancing
+    setSaveState('saving');
+    try {
+      await fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          locationId,
+          nombre_empresa: draft.empresa,
+          sector: draft.rubro,
+          producto: draft.producto,
+          publico: draft.publico,
+          tono: draft.tono,
+          color_primario: draft.primary,
+          color_secundario: draft.secondary,
+          logo: draft.logoName,
+          telefono: draft.telefono,
+          email: draft.email,
+          sitio_web: draft.web,
+          instagram: draft.instagram,
+          facebook: draft.facebook,
+          whatsapp: draft.whats,
+        }),
+      });
+      setSaveState('saved');
+      setTimeout(() => setSaveState('idle'), 700);
+    } catch (err) {
+      console.error('Error guardando:', err);
+      setSaveState('error');
+      setTimeout(() => setSaveState('idle'), 1800);
+      // still allow advance so the user is not stuck on connectivity issues
+    }
+
+    if (isLast) { setStepIdx(WIZARD_STEPS.length); setDir(1); return; }
+    setDir(1); setStepIdx(i => i+1);
+  };
+  const back = () => { if (stepIdx === 0) return; setDir(-1); setStepIdx(i => i-1); };
+
+  const submit = () => {
+    setForm(draft);
+    setStep('form', true);
+    setConfirmed(true);
+    fireConfetti();
+    toast({ kind:'ok', title:'Información enviada', desc:'Tu formulario quedó registrado.' });
+  };
+
+  const pct = confirmed ? 100 : Math.round(((stepIdx) / WIZARD_STEPS.length) * 100);
+
+  return (
+    <DetailLayout step={step}>
+      {!confirmed ? (
+        <>
+          {/* Progress bar */}
+          <WizardProgress steps={WIZARD_STEPS} current={stepIdx} pct={pct} onJump={(i) => { if (i < stepIdx) { setDir(-1); setStepIdx(i); } }} />
+
+          {inReview ? (
+            <ReviewScreen
+              draft={draft}
+              onBack={() => { setDir(-1); setStepIdx(WIZARD_STEPS.length - 1); }}
+              onSubmit={submit}
+              onEdit={(i) => { setDir(-1); setStepIdx(i); }}
+            />
+          ) : (
+          <>
+          {/* Animated step */}
+          <div className="relative mt-10" style={{ minHeight: 480 }}>
+            <div key={stepIdx} className={`fade-in ${dir>0 ? 'slide-in-right':'slide-in-left'}`}>
+              <StepHeader num={`0${stepIdx+1}`} total={WIZARD_STEPS.length} title={currentStep.title} desc={currentStep.desc}/>
+              {currentStep.id === 'identidad' && loading && (
+                <FormSkeleton kind="identidad" />
+              )}
+              {currentStep.id === 'identidad' && !loading && (
+                <div className="grid md:grid-cols-2 gap-5 mt-8">
+                  <FloatingInput label="Nombre de la empresa" value={draft.empresa} onChange={v=>update('empresa',v)} onBlur={()=>blur('empresa')} error={touched.empresa && errors.empresa} touched={touched.empresa} required/>
+                  <div className="md:col-span-2">
+                    <ChipGroup
+                      label="Rubro o sector"
+                      required
+                      options={RUBROS}
+                      value={draft.rubro}
+                      onChange={v => { update('rubro', RUBROS.find(r=>r.id===v)?.label || v); setTouched(t=>({...t,rubro:true})); setErrors(e=>({...e,rubro:null})); }}
+                      selectedId={RUBROS.find(r => r.label === draft.rubro)?.id}
+                      error={touched.rubro && errors.rubro}
+                    />
+                  </div>
+                  <FloatingTextarea full label="Producto o servicio principal" value={draft.producto} onChange={v=>update('producto',v)} onBlur={()=>blur('producto')} error={touched.producto && errors.producto} touched={touched.producto} required rows={3}/>
+                  <FloatingTextarea full label="Público objetivo" value={draft.publico} onChange={v=>update('publico',v)} onBlur={()=>blur('publico')} error={touched.publico && errors.publico} touched={touched.publico} required rows={3}/>
+                </div>
+              )}
+              {currentStep.id === 'voz' && loading && (
+                <FormSkeleton kind="voz" />
+              )}
+              {currentStep.id === 'voz' && !loading && (
+                <div className="mt-8 space-y-8">
+                  <ChipGroup
+                    label="Tono de comunicación"
+                    required
+                    options={TONOS}
+                    value={draft.tono}
+                    onChange={v => { update('tono', v); setTouched(t=>({...t,tono:true})); setErrors(e=>({...e,tono:null})); }}
+                    selectedId={draft.tono}
+                    error={touched.tono && errors.tono}
+                    variant="tone"
+                  />
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <FloatingColor label="Color primario" value={draft.primary} onChange={v=>update('primary',v)} onBlur={()=>blur('primary')} touched={touched.primary} />
+                    <FloatingColor label="Color secundario" value={draft.secondary} onChange={v=>update('secondary',v)} onBlur={()=>blur('secondary')} touched={touched.secondary} />
+                    <div className="md:col-span-2">
+                      <LogoDropWizard fileName={draft.logoName} onChange={name => update('logoName', name)}/>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {currentStep.id === 'contacto' && loading && (
+                <FormSkeleton kind="contacto" />
+              )}
+              {currentStep.id === 'contacto' && !loading && (
+                <div className="grid md:grid-cols-2 gap-5 mt-8">
+                  <FloatingInput label="Teléfono de contacto" type="tel" value={draft.telefono} onChange={v=>update('telefono',v)} onBlur={()=>blur('telefono')} error={touched.telefono && errors.telefono} touched={touched.telefono} required/>
+                  <FloatingInput label="Email del negocio" type="email" value={draft.email} onChange={v=>update('email',v)} onBlur={()=>blur('email')} error={touched.email && errors.email} touched={touched.email} required/>
+                  <FloatingInput full label="Sitio web" value={draft.web} onChange={v=>update('web',v)} onBlur={()=>blur('web')} error={touched.web && errors.web} touched={touched.web} placeholder="https://"/>
+                </div>
+              )}
+              {currentStep.id === 'canales' && loading && (
+                <FormSkeleton kind="canales" />
+              )}
+              {currentStep.id === 'canales' && !loading && (
+                <div className="grid md:grid-cols-2 gap-5 mt-8">
+                  <FloatingInput label="Instagram" value={draft.instagram} onChange={v=>update('instagram',v)} onBlur={()=>blur('instagram')} touched={touched.instagram} placeholder="@tu_cuenta"/>
+                  <FloatingInput label="Facebook" value={draft.facebook} onChange={v=>update('facebook',v)} onBlur={()=>blur('facebook')} touched={touched.facebook} placeholder="URL de tu página"/>
+                  <FloatingInput label="WhatsApp de negocio" type="tel" value={draft.whats} onChange={v=>update('whats',v)} onBlur={()=>blur('whats')} touched={touched.whats}/>
+                  <FloatingInput label="Link de Zoom / Meet" value={draft.meet} onChange={v=>update('meet',v)} onBlur={()=>blur('meet')} touched={touched.meet} placeholder="https://"/>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Nav buttons */}
+          <div className="mt-10 pt-6 border-t hairline flex items-center justify-between gap-4">
+            <Btn kind="ghost" onClick={back} disabled={stepIdx === 0 || saveState === 'saving'} icon={<IconArrowLeft size={16}/>}>
+              Atrás
+            </Btn>
+            <div className="text-xs hidden sm:block min-h-[20px]">
+              {saveState === 'saving' ? (
+                <span className="inline-flex items-center gap-2 text-ink-500">
+                  <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-paper-300 border-t-gold-400 animate-spin" />
+                  Guardando…
+                </span>
+              ) : saveState === 'saved' ? (
+                <span className="inline-flex items-center gap-1.5 text-emerald-700 fade-in">
+                  <IconCheck size={13} stroke={2.5}/> Guardado
+                </span>
+              ) : saveState === 'error' ? (
+                <span className="inline-flex items-center gap-1.5 text-warn fade-in">
+                  <IconAlert size={12} stroke={2.5}/> No se pudo guardar
+                </span>
+              ) : (
+                <span className="text-ink-500">
+                  Paso <span className="font-mono text-navy-900">{stepIdx+1}</span> de {WIZARD_STEPS.length}
+                </span>
+              )}
+            </div>
+            <Btn
+              kind="gold"
+              onClick={next}
+              disabled={!canAdvance || saveState === 'saving'}
+              size="lg"
+              icon={saveState === 'saving' ? (
+                <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-navy-900/30 border-t-navy-900 animate-spin" />
+              ) : null}
+              iconRight={saveState === 'saving' ? null : (isLast ? <IconCheck size={16} stroke={2.5}/> : <IconArrowRight size={16}/>)}
+            >
+              {saveState === 'saving' ? 'Guardando…' : (isLast ? 'Revisar y confirmar' : 'Siguiente')}
+            </Btn>
+          </div>
+          </>
+          )}
+        </>
+      ) : (
+        <SuccessScreen draft={draft} onDone={() => navigate('home')} />
+      )}
+    </DetailLayout>
+  );
+}
+
+function WizardProgress({ steps, current, pct, onJump }) {
+  return (
+    <div className="-mt-2">
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="text-[11px] uppercase tracking-[0.14em] text-ink-500">Progreso del formulario</div>
+        <div className="text-xs text-ink-500 num-pill">{pct}%</div>
+      </div>
+      <div className="h-1.5 bg-paper-200 rounded-full overflow-hidden relative">
+        <div className="absolute inset-y-0 left-0 bg-gold-400 rounded-full transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }}/>
+      </div>
+      <div className="mt-4 grid grid-cols-4 gap-3">
+        {steps.map((s, i) => {
+          const state = i < current ? 'done' : i === current ? 'active' : 'todo';
+          return (
+            <button key={s.id} onClick={()=>onJump(i)} disabled={i >= current}
+              className={`text-left p-3 rounded-lg border transition-all ${
+                state==='active' ? 'bg-navy-900 text-paper-50 border-navy-900' :
+                state==='done' ? 'bg-white border-ok/30 hover:border-ok text-navy-900' :
+                'bg-paper-50/50 border-transparent text-ink-500'
+              }`}>
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`w-5 h-5 rounded-full grid place-items-center text-[10px] font-mono ${
+                  state==='active' ? 'bg-gold-400 text-navy-900' :
+                  state==='done' ? 'bg-ok text-white' :
+                  'bg-paper-200 text-ink-500'
+                }`}>
+                  {state === 'done' ? <IconCheck size={10} stroke={3}/> : i+1}
+                </span>
+                <span className={`text-[10px] uppercase tracking-[0.12em] ${state==='active' ? 'text-gold-300':''}`}>
+                  {state==='active' ? 'En curso' : state==='done' ? 'Completado' : 'Siguiente'}
+                </span>
+              </div>
+              <div className={`text-sm font-medium ${state==='active' ? 'text-paper-50' : ''}`}>{s.title}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function StepHeader({ num, total, title, desc }) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="font-serif text-5xl text-gold-400 leading-none num-pill">{num}</div>
+      <div>
+        <div className="text-[11px] uppercase tracking-[0.16em] text-ink-500">Paso {num} de 0{total}</div>
+        <h2 className="font-serif text-3xl text-navy-900 mt-1">{title}</h2>
+        <p className="text-sm text-ink-500 mt-2 max-w-xl leading-relaxed">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function FloatingInput({ label, value='', onChange, onBlur, error, touched, required, type='text', placeholder, full }) {
+  const [focused, setFocused] = useState(false);
+  const floaty = focused || !!value;
+  const showOk = touched && !error && !!(value||'').toString().trim();
+  const showErr = !!error;
+  return (
+    <div className={`${full ? 'md:col-span-2' : ''}`}>
+      <label className={`relative block rounded-md border bg-white transition-all ${
+        showErr ? 'border-warn' : focused ? 'border-navy-700' : 'hairline-strong'
+      }`}>
+        <span className={`pointer-events-none absolute left-3 transition-all duration-200 ${
+          floaty
+            ? 'top-1 text-[10px] uppercase tracking-[0.12em] text-ink-500'
+            : 'top-1/2 -translate-y-1/2 text-[14px] text-ink-500'
+        } ${focused && !showErr ? 'text-navy-700' : ''} ${showErr ? 'text-warn' : ''}`}>
+          {label}{required && <span className={showErr ? 'text-warn' : 'text-gold-500'}> *</span>}
+        </span>
+        <input
+          type={type}
+          value={value || ''}
+          placeholder={floaty ? (placeholder || '') : ''}
+          onFocus={()=>setFocused(true)}
+          onBlur={(e)=>{ setFocused(false); onBlur?.(e); }}
+          onChange={e => onChange(e.target.value)}
+          className="w-full bg-transparent outline-none pt-5 pb-1.5 px-3 pr-9 text-[14px] text-navy-900"
+        />
+        {showOk && (
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-ok text-white grid place-items-center">
+            <IconCheck size={11} stroke={3}/>
+          </span>
+        )}
+        {showErr && (
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-warn text-white grid place-items-center">
+            <IconAlert size={11} stroke={2.5}/>
+          </span>
+        )}
+      </label>
+      {showErr && <div className="text-xs text-warn mt-1.5 flex items-center gap-1"><IconAlert size={11} stroke={2}/> {error}</div>}
+    </div>
+  );
+}
+
+function FloatingTextarea({ label, value='', onChange, onBlur, error, touched, required, rows=3, full }) {
+  const [focused, setFocused] = useState(false);
+  const floaty = focused || !!value;
+  const showOk = touched && !error && !!(value||'').toString().trim();
+  const showErr = !!error;
+  return (
+    <div className={full ? 'md:col-span-2' : ''}>
+      <label className={`relative block rounded-md border bg-white transition-all ${
+        showErr ? 'border-warn' : focused ? 'border-navy-700' : 'hairline-strong'
+      }`}>
+        <span className={`pointer-events-none absolute left-3 transition-all duration-200 ${
+          floaty
+            ? 'top-1.5 text-[10px] uppercase tracking-[0.12em] text-ink-500'
+            : 'top-3 text-[14px] text-ink-500'
+        } ${focused && !showErr ? 'text-navy-700' : ''} ${showErr ? 'text-warn' : ''}`}>
+          {label}{required && <span className={showErr ? 'text-warn' : 'text-gold-500'}> *</span>}
+        </span>
+        <textarea
+          rows={rows}
+          value={value || ''}
+          onFocus={()=>setFocused(true)}
+          onBlur={(e)=>{ setFocused(false); onBlur?.(e); }}
+          onChange={e => onChange(e.target.value)}
+          className="w-full bg-transparent outline-none pt-6 pb-2 px-3 pr-9 text-[14px] text-navy-900 resize-none leading-relaxed"
+        />
+        {showOk && (
+          <span className="absolute right-2.5 top-2.5 w-5 h-5 rounded-full bg-ok text-white grid place-items-center">
+            <IconCheck size={11} stroke={3}/>
+          </span>
+        )}
+        {showErr && (
+          <span className="absolute right-2.5 top-2.5 w-5 h-5 rounded-full bg-warn text-white grid place-items-center">
+            <IconAlert size={11} stroke={2.5}/>
+          </span>
+        )}
+      </label>
+      {showErr && <div className="text-xs text-warn mt-1.5 flex items-center gap-1"><IconAlert size={11} stroke={2}/> {error}</div>}
+    </div>
+  );
+}
+
+function FloatingColor({ label, value, onChange, onBlur, touched }) {
+  const [focused, setFocused] = useState(false);
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
+  return (
+    <div className="relative">
+      <label className={`relative block rounded-md border bg-white transition-all ${focused ? 'border-navy-700' : 'hairline-strong'}`}>
+        <span className="absolute left-3 top-1 text-[10px] uppercase tracking-[0.12em] text-ink-500">{label}</span>
+        <div ref={anchorRef} className="flex items-center gap-3 pt-5 pb-1.5 px-3">
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); setOpen(o => !o); }}
+            aria-label="Abrir selector de color"
+            className="w-7 h-7 rounded-md border hairline flex-shrink-0 shadow-inset hover:ring-2 hover:ring-gold-300 transition-all"
+            style={{ background: value }}
+          />
+          <input
+            value={value}
+            onFocus={()=>setFocused(true)}
+            onBlur={(e)=>{ setFocused(false); onBlur?.(e); }}
+            onChange={e => onChange(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-[14px] font-mono text-navy-900 uppercase"
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); setOpen(o => !o); }}
+            className="text-[10px] uppercase tracking-[0.12em] text-ink-500 hover:text-navy-900 transition-colors"
+          >
+            {open ? 'Cerrar' : 'Elegir'}
+          </button>
+        </div>
+      </label>
+      {open && (
+        <ColorPickerPopover
+          initial={value}
+          onClose={() => setOpen(false)}
+          onApply={(hex) => { onChange(hex); setOpen(false); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---------- Splash Screen ----------
+const SPLASH_VIDEO = 'https://raw.githubusercontent.com/daniells97/videomarcelo/main/Cinematic_Brand_Intro_Video_Generation.mp4';
+
+function SplashScreen({ fadingOut, onContinue }) {
+  const videoRef = useRef(null);
+  const [showBtn, setShowBtn] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowBtn(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Prevent page scroll while splash active
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  const particles = useMemo(() => Array.from({length: 28}, (_,i) => ({
+    id: i,
+    left: Math.random() * 100,
+    top: 60 + Math.random() * 40,
+    size: 2 + Math.random() * 5,
+    dur: 6 + Math.random() * 8,
+    delay: Math.random() * 6,
+    dx: (Math.random() - 0.5) * 120,
+    dy: -120 - Math.random() * 180,
+  })), []);
+
+  return (
+    <div className={`fixed inset-0 z-[100] ${fadingOut ? 'splash-fade-out' : 'splash-fade-in'}`} style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative', background: '#0d0d0f' }}>
+      {/* Video layer */}
+      {!videoFailed && (
+        <video
+          ref={videoRef}
+          src={SPLASH_VIDEO}
+          autoPlay
+          muted
+          playsInline
+          loop={false}
+          onEnded={() => setShowBtn(true)}
+          onError={() => setVideoFailed(true)}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            objectPosition: 'center center',
+            display: 'block',
+            background: '#0d0d0f',
+          }}
+        />
+      )}
+
+      {/* Top mask — hide '9K:16' watermark */}
+      {!videoFailed && (
+        <div style={{ position:'absolute', top:0, left:0, width:'100%', height:'160px', zIndex:5, background:'linear-gradient(to bottom, #0d0d0f 0%, #0d0d0f 60%, transparent 100%)', pointerEvents:'none' }} />
+      )}
+      {/* Bottom mask — hide watermark */}
+      {!videoFailed && (
+        <div style={{ position:'absolute', bottom:0, left:0, width:'100%', height:'80px', zIndex:2, background:'linear-gradient(to top, #0d0d0f 0%, transparent 100%)', pointerEvents:'none' }} />
+      )}
+      {/* Left mask */}
+      {!videoFailed && (
+        <div style={{ position:'absolute', top:0, left:0, width:'15%', height:'100%', zIndex:2, background:'linear-gradient(to right, #0d0d0f 0%, transparent 100%)', pointerEvents:'none' }} />
+      )}
+      {/* Right mask */}
+      {!videoFailed && (
+        <div style={{ position:'absolute', top:0, right:0, width:'15%', height:'100%', zIndex:2, background:'linear-gradient(to left, #0d0d0f 0%, transparent 100%)', pointerEvents:'none' }} />
+      )}
+
+      {/* Fallback layer — logo + particles */}
+      {videoFailed && (
+        <div className="absolute inset-0 bg-navy-900 flex items-center justify-center">
+          {particles.map(p => (
+            <span
+              key={p.id}
+              className="particle"
+              style={{
+                left: `${p.left}%`, top: `${p.top}%`,
+                width: p.size, height: p.size,
+                animationDuration: `${p.dur}s`,
+                animationDelay: `${p.delay}s`,
+                '--dx': `${p.dx}px`, '--dy': `${p.dy}px`,
+              }}
+            />
+          ))}
+          <div className="absolute inset-0 grid-bg opacity-30" />
+          <div className="relative text-center">
+            <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-24 h-24 mx-auto object-contain drop-shadow-2xl" />
+            <div className="mt-5 font-serif text-paper-50 text-4xl">Marcelo <span className="italic text-gold-300">CRM</span></div>
+            <div className="mt-2 text-xs uppercase tracking-[0.2em] text-paper-300/70">Portal de onboarding</div>
+          </div>
+        </div>
+      )}
+
+      {/* Dim overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-navy-950/30 via-transparent to-navy-950/70 pointer-events-none" />
+
+      {/* Skip */}
+      <button
+        onClick={onContinue}
+        className="absolute top-5 right-6 text-xs uppercase tracking-[0.14em] text-paper-300/80 hover:text-gold-300 transition-colors z-10"
+      >
+        Omitir →
+      </button>
+
+      {/* CTA */}
+      {showBtn && (
+        <div className="absolute inset-x-0 bottom-16 md:bottom-20 flex justify-center z-10">
+          <button
+            onClick={onContinue}
+            className="btn-rise inline-flex items-center gap-3 bg-gold-400 text-navy-900 font-medium text-[15px] px-7 h-14 rounded-full border-2 border-gold-300 shadow-2xl hover:bg-gold-300 transition-all hover:scale-[1.02]"
+            style={{ boxShadow: '0 20px 40px -10px rgba(212,161,74,0.5), 0 0 0 1px rgba(212,161,74,0.3)' }}
+          >
+            Comenzar configuración
+            <IconArrowRight size={18} stroke={2}/>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------- Color utils ----------
+function hexToRgb(hex) {
+  const h = (hex || '').replace('#','').trim();
+  const s = h.length === 3 ? h.split('').map(c=>c+c).join('') : h;
+  if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+  return { r: parseInt(s.slice(0,2),16), g: parseInt(s.slice(2,4),16), b: parseInt(s.slice(4,6),16) };
+}
+function rgbToHex(r,g,b) {
+  const to = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0');
+  return ('#' + to(r) + to(g) + to(b)).toUpperCase();
+}
+function rgbToHsv(r,g,b) {
+  r/=255; g/=255; b/=255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g-b)/d) % 6;
+    else if (max === g) h = (b-r)/d + 2;
+    else h = (r-g)/d + 4;
+    h *= 60; if (h < 0) h += 360;
+  }
+  const s = max === 0 ? 0 : d/max;
+  return { h, s, v: max };
+}
+function hsvToRgb(h,s,v) {
+  const c = v*s, x = c * (1 - Math.abs(((h/60) % 2) - 1)), m = v - c;
+  let r=0,g=0,b=0;
+  if (h<60)      { r=c; g=x; b=0; }
+  else if (h<120){ r=x; g=c; b=0; }
+  else if (h<180){ r=0; g=c; b=x; }
+  else if (h<240){ r=0; g=x; b=c; }
+  else if (h<300){ r=x; g=0; b=c; }
+  else           { r=c; g=0; b=x; }
+  return { r:(r+m)*255, g:(g+m)*255, b:(b+m)*255 };
+}
+
+function ColorPickerPopover({ initial, onApply, onClose }) {
+  const W = 260, H = 150;
+  const ref = useRef(null);
+  const canvasRef = useRef(null);
+  const hueCanvasRef = useRef(null);
+  const satRef = useRef(null);
+  const hueRef = useRef(null);
+
+  const rgb0 = hexToRgb(initial) || { r:15, g:26, b:46 };
+  const hsv0 = rgbToHsv(rgb0.r, rgb0.g, rgb0.b);
+  const [h, setH] = useState(hsv0.h);
+  const [s, setS] = useState(hsv0.s);
+  const [v, setV] = useState(hsv0.v);
+  const [hexInput, setHexInput] = useState(initial?.toUpperCase() || '#');
+
+  const rgb = hsvToRgb(h,s,v);
+  const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+
+  useEffect(() => { setHexInput(hex); }, [hex]);
+
+  // outside click
+  useEffect(() => {
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    const onKey  = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [onClose]);
+
+  // draw SV canvas
+  useEffect(() => {
+    const c = canvasRef.current; if (!c) return;
+    const ctx = c.getContext('2d');
+    // base hue
+    const base = hsvToRgb(h, 1, 1);
+    ctx.fillStyle = rgbToHex(base.r, base.g, base.b);
+    ctx.fillRect(0,0,W,H);
+    // white gradient left->right
+    const gx = ctx.createLinearGradient(0,0,W,0);
+    gx.addColorStop(0, 'rgba(255,255,255,1)');
+    gx.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gx; ctx.fillRect(0,0,W,H);
+    // black gradient top->bottom
+    const gy = ctx.createLinearGradient(0,0,0,H);
+    gy.addColorStop(0, 'rgba(0,0,0,0)');
+    gy.addColorStop(1, 'rgba(0,0,0,1)');
+    ctx.fillStyle = gy; ctx.fillRect(0,0,W,H);
+  }, [h]);
+
+  // draw hue strip
+  useEffect(() => {
+    const c = hueCanvasRef.current; if (!c) return;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0,0,W,0);
+    const stops = [0,60,120,180,240,300,360];
+    stops.forEach(stop => {
+      const rgb = hsvToRgb(stop % 360, 1, 1);
+      g.addColorStop(stop/360, rgbToHex(rgb.r,rgb.g,rgb.b));
+    });
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,14);
+  }, []);
+
+  const pickSat = (e) => {
+    const rect = satRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(W, (e.clientX ?? e.touches?.[0]?.clientX) - rect.left));
+    const y = Math.max(0, Math.min(H, (e.clientY ?? e.touches?.[0]?.clientY) - rect.top));
+    setS(x / W); setV(1 - y / H);
+  };
+  const pickHue = (e) => {
+    const rect = hueRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(W, (e.clientX ?? e.touches?.[0]?.clientX) - rect.left));
+    setH((x / W) * 360);
+  };
+  const dragBind = (handler) => {
+    const onMove = (e) => handler(e);
+    const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    return (e) => { handler(e); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp); };
+  };
+
+  const onHexInput = (e) => {
+    const val = e.target.value;
+    setHexInput(val.toUpperCase());
+    const rgb = hexToRgb(val);
+    if (rgb) {
+      const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+      setH(hsv.h); setS(hsv.s); setV(hsv.v);
+    }
+  };
+
+  const swatches = ['#0F1A2E','#D4A14A','#1F7A5A','#B85C1E','#F6E9C9','#FFFFFF','#334672','#E3C06A'];
+
+  return (
+    <div
+      ref={ref}
+      className="absolute z-50 top-full mt-2 left-0 bg-navy-900 text-paper-50 rounded-[12px] shadow-cardHover border border-white/10 p-4 w-[292px] fade-in"
+      style={{ boxShadow: '0 24px 60px -20px rgba(10,19,34,0.5), 0 8px 20px -8px rgba(10,19,34,0.4)' }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* SV canvas */}
+      <div
+        ref={satRef}
+        onMouseDown={dragBind(pickSat)}
+        className="relative cursor-crosshair rounded-lg overflow-hidden select-none"
+        style={{ width: W, height: H }}
+      >
+        <canvas ref={canvasRef} width={W} height={H} className="block"/>
+        <div
+          className="absolute w-4 h-4 rounded-full border-2 border-white pointer-events-none"
+          style={{
+            left: s*W - 8, top: (1-v)*H - 8,
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.3)',
+            background: hex,
+          }}
+        />
+      </div>
+
+      {/* Hue slider */}
+      <div
+        ref={hueRef}
+        onMouseDown={dragBind(pickHue)}
+        className="relative mt-3 cursor-pointer rounded-full overflow-hidden select-none"
+        style={{ width: W, height: 14 }}
+      >
+        <canvas ref={hueCanvasRef} width={W} height={14} className="block"/>
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-navy-900 pointer-events-none"
+          style={{
+            left: (h/360)*W - 8,
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.4)',
+          }}
+        />
+      </div>
+
+      {/* Hex + preview */}
+      <div className="mt-3 flex items-center gap-3">
+        <div className="flex-1">
+          <div className="text-[9px] uppercase tracking-[0.14em] text-paper-300/70 mb-1">Hex</div>
+          <input
+            value={hexInput}
+            onChange={onHexInput}
+            className="w-full bg-white/5 border border-white/10 rounded-md px-2.5 h-8 text-[13px] font-mono text-paper-50 outline-none focus:border-gold-300 uppercase"
+          />
+        </div>
+        <div className="flex-1">
+          <div className="text-[9px] uppercase tracking-[0.14em] text-paper-300/70 mb-1">Antes / Después</div>
+          <div className="h-8 rounded-md border border-white/10 overflow-hidden flex">
+            <div className="flex-1" style={{ background: initial }} title="Anterior"/>
+            <div className="flex-1" style={{ background: hex }} title="Nuevo"/>
+          </div>
+        </div>
+      </div>
+
+      {/* Swatches */}
+      <div className="mt-3">
+        <div className="text-[9px] uppercase tracking-[0.14em] text-paper-300/70 mb-1.5">Sugeridos</div>
+        <div className="flex gap-1.5 flex-wrap">
+          {swatches.map(sw => (
+            <button
+              key={sw}
+              type="button"
+              onClick={() => {
+                const rgb = hexToRgb(sw); const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+                setH(hsv.h); setS(hsv.s); setV(hsv.v);
+              }}
+              className="w-6 h-6 rounded-md border border-white/15 hover:scale-110 transition-transform"
+              style={{ background: sw }}
+              aria-label={sw}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-paper-300/80 hover:text-paper-50 px-3 h-9 rounded-md transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={() => onApply(hex)}
+          className="inline-flex items-center gap-1.5 bg-gold-400 text-navy-900 text-sm font-medium h-9 px-4 rounded-md hover:bg-gold-300 transition-colors"
+        >
+          <IconCheck size={14} stroke={2.5}/> Aplicar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ChipGroup({ label, required, options, onChange, selectedId, error, variant='rubro' }) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="text-[11px] uppercase tracking-[0.12em] text-ink-500">
+          {label}{required && <span className={error ? 'text-warn' : 'text-gold-500'} style={{letterSpacing:0}}> *</span>}
+        </div>
+        {selectedId && <div className="text-xs text-ok flex items-center gap-1"><IconCheck size={12} stroke={2.5}/> Seleccionado</div>}
+      </div>
+      <div className={`grid gap-2.5 ${variant==='tone' ? 'md:grid-cols-2' : 'sm:grid-cols-2 md:grid-cols-4'}`}>
+        {options.map(opt => {
+          const active = opt.id === selectedId;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => onChange(opt.id)}
+              className={`text-left p-3.5 rounded-lg border transition-all relative group ${
+                active
+                  ? 'bg-navy-900 text-paper-50 border-navy-900 shadow-card'
+                  : 'bg-white hairline-strong hover:border-navy-500 hover:shadow-card'
+              }`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  {variant==='rubro' && (
+                    <div className={`font-serif text-xl mb-1 ${active ? 'text-gold-300' : 'text-gold-500'}`}>{opt.emoji}</div>
+                  )}
+                  <div className={`font-medium text-[14px] ${active ? 'text-paper-50' : 'text-navy-900'}`}>{opt.label}</div>
+                  <div className={`text-xs mt-0.5 ${active ? 'text-paper-300/80' : 'text-ink-500'}`}>{opt.desc}</div>
+                </div>
+                <span className={`w-5 h-5 rounded-full border-2 grid place-items-center flex-shrink-0 transition-all ${
+                  active ? 'bg-gold-400 border-gold-400' : 'border-paper-300 group-hover:border-navy-500'
+                }`}>
+                  {active && <IconCheck size={11} stroke={3} />}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {error && <div className="text-xs text-warn mt-2 flex items-center gap-1"><IconAlert size={11} stroke={2}/> {error}</div>}
+    </div>
+  );
+}
+
+function LogoDropWizard({ fileName, onChange }) {
+  const ref = useRef(null);
+  return (
+    <div className="border-2 border-dashed border-gold-300 bg-gold-50/30 rounded-lg p-4 flex items-center gap-4">
+      <div className="w-14 h-14 rounded-md bg-white border hairline grid place-items-center flex-shrink-0">
+        <span className="font-serif text-2xl text-navy-900">IH</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[11px] uppercase tracking-[0.12em] text-ink-500 mb-0.5">Logo</div>
+        <div className="text-[14px] text-navy-900 font-medium truncate">{fileName || 'Sin logo cargado'}</div>
+        <div className="text-xs text-ink-500">PNG o SVG · máx 2 MB · fondo transparente</div>
+      </div>
+      <input type="file" ref={ref} accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) onChange(f.name); }}/>
+      <Btn kind="outline" size="sm" icon={<IconUpload size={14}/>} onClick={() => ref.current?.click()}>Reemplazar</Btn>
+    </div>
+  );
+}
+
+function ReviewScreen({ draft, onBack, onSubmit, onEdit }) {
+  const sections = [
+    { idx:0, title:'Identidad del negocio', items:[
+      ['Empresa', draft.empresa], ['Rubro', draft.rubro],
+      ['Producto/servicio', draft.producto], ['Público objetivo', draft.publico],
+    ]},
+    { idx:1, title:'Voz y marca', items:[
+      ['Tono', (TONOS.find(t=>t.id===draft.tono)?.label) || draft.tono],
+      ['Color primario', draft.primary, 'color'],
+      ['Color secundario', draft.secondary, 'color'],
+      ['Logo', draft.logoName],
+    ]},
+    { idx:2, title:'Contacto operativo', items:[
+      ['Teléfono', draft.telefono], ['Email', draft.email], ['Sitio web', draft.web],
+    ]},
+    { idx:3, title:'Redes y canales', items:[
+      ['Instagram', draft.instagram], ['Facebook', draft.facebook],
+      ['WhatsApp', draft.whats], ['Link de reunión', draft.meet],
+    ]},
+  ];
+  return (
+    <div className="fade-in slide-in-right mt-10">
+      <StepHeader num="✦" total={4} title="Revisa antes de enviar" desc="Verifica que todo se vea correcto. Puedes editar cualquier sección antes de confirmar." />
+      <div className="mt-8 space-y-4">
+        {sections.map(s => (
+          <div key={s.title} className="bg-white border hairline rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 bg-paper-50 border-b hairline">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-ok text-white grid place-items-center"><IconCheck size={12} stroke={3}/></span>
+                <div className="font-serif text-[17px] text-navy-900">{s.title}</div>
+              </div>
+              <button onClick={() => onEdit(s.idx)} className="text-xs text-navy-900 hover:text-gold-500 inline-flex items-center gap-1.5 transition-colors">
+                <IconEdit size={12}/> Editar
+              </button>
+            </div>
+            <dl className="grid md:grid-cols-2 gap-x-6 gap-y-3 px-5 py-4">
+              {s.items.map(([k,v,kind]) => (
+                <div key={k} className="min-w-0">
+                  <dt className="text-[10px] uppercase tracking-[0.14em] text-ink-500">{k}</dt>
+                  <dd className="text-[14px] text-navy-900 mt-0.5 flex items-center gap-2 truncate">
+                    {kind==='color' && v && <span className="w-4 h-4 rounded-sm border hairline flex-shrink-0" style={{background:v}}/>}
+                    <span className="truncate">{v || <span className="text-ink-400 italic">Sin definir</span>}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+      <div className="mt-8 pt-6 border-t hairline flex items-center justify-between gap-4">
+        <Btn kind="ghost" onClick={onBack} icon={<IconArrowLeft size={16}/>}>Volver al formulario</Btn>
+        <Btn kind="gold" size="lg" onClick={onSubmit} iconRight={<IconCheck size={16} stroke={2.5}/>}>Confirmar y enviar</Btn>
+      </div>
+    </div>
+  );
+}
+
+function SuccessScreen({ draft, onDone }) {
+  return (
+    <div className="fade-in text-center pt-8 pb-4">
+      <div className="relative w-24 h-24 mx-auto mb-6">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#E6F2EC" strokeWidth="4"/>
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#1F7A5A" strokeWidth="4" strokeLinecap="round"
+            strokeDasharray="289" strokeDashoffset="289" transform="rotate(-90 50 50)"
+            style={{ animation: 'drawCircle 0.7s ease-out forwards' }}/>
+          <polyline points="30,52 45,66 72,38" fill="none" stroke="#1F7A5A" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+            strokeDasharray="60" strokeDashoffset="60"
+            style={{ animation: 'drawCheck 0.45s ease-out 0.5s forwards' }}/>
+        </svg>
+      </div>
+      <div className="text-[11px] uppercase tracking-[0.18em] text-gold-500 mb-2">Formulario enviado</div>
+      <h2 className="font-serif text-4xl text-navy-900">¡Listo, {draft.empresa}!</h2>
+      <p className="text-ink-500 mt-3 max-w-md mx-auto leading-relaxed">
+        Tu información quedó registrada. Empezaremos a personalizar tus plantillas e integraciones según lo que nos contaste.
+      </p>
+      <div className="mt-8 inline-flex items-center gap-3 bg-white border hairline rounded-xl px-5 py-3">
+        <span className="w-8 h-8 rounded-md bg-paper-100 grid place-items-center text-navy-900">
+          <IconSpark size={16}/>
+        </span>
+        <div className="text-left">
+          <div className="text-xs text-ink-500">Siguiente paso sugerido</div>
+          <div className="text-sm font-medium text-navy-900">Conectar Gmail / Calendar</div>
+        </div>
+      </div>
+      <div className="mt-8 flex items-center justify-center gap-3">
+        <Btn kind="outline" onClick={onDone}>Volver al checklist</Btn>
+        <Btn kind="gold" onClick={() => window.location.hash = `/loc_HRZ2042/gmail`} iconRight={<IconArrowRight size={16}/>}>
+          Continuar con Gmail
+        </Btn>
+      </div>
+    </div>
+  );
+}
+
+// --- Confetti ---
+function fireConfetti() {
+  const c = document.createElement('canvas');
+  c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:60;';
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  document.body.appendChild(c);
+  const ctx = c.getContext('2d');
+  const colors = ['#D4A14A','#0F1A2E','#E3C06A','#1F7A5A','#F6E9C9'];
+  const N = 140;
+  const parts = Array.from({length:N}, () => ({
+    x: c.width/2 + (Math.random()-0.5)*120,
+    y: c.height/2 - 40,
+    vx: (Math.random()-0.5)*12,
+    vy: (Math.random()*-12)-4,
+    g: 0.35 + Math.random()*0.2,
+    r: 3 + Math.random()*4,
+    c: colors[(Math.random()*colors.length)|0],
+    rot: Math.random()*Math.PI,
+    vr: (Math.random()-0.5)*0.3,
+    life: 0,
+  }));
+  let start = performance.now();
+  function frame(t) {
+    const dt = (t - start); start = t;
+    ctx.clearRect(0,0,c.width,c.height);
+    parts.forEach(p => {
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life += dt;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = Math.max(0, 1 - p.life/2500);
+      ctx.fillRect(-p.r, -p.r*0.4, p.r*2, p.r*0.8);
+      ctx.restore();
+    });
+    if (parts.some(p => p.life < 2500)) requestAnimationFrame(frame);
+    else c.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------- App root ----------
+function App() {
+  const store = useStore();
+  const { page } = useRoute();
+  let Page;
+  switch (page) {
+    case 'gmail':      Page = GmailPage; break;
+    case 'whatsapp':   Page = WhatsPage; break;
+    case 'redes':      Page = RedesPage; break;
+    case 'dominio':    Page = DominioPage; break;
+    case 'formulario': Page = FormularioPage; break;
+    default:           Page = HomePage; break;
+  }
+  return (
+    <StoreCtx.Provider value={store}>
+      <ToastProvider>
+        <div className="fade-in" key={page}><Page /></div>
+      </ToastProvider>
+    </StoreCtx.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <RouterProvider><App /></RouterProvider>
+);
+</script>
+</body>
+</html>
