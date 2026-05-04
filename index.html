@@ -716,12 +716,28 @@ function DetailActions({ stepKey }) {
   const status = state.steps[stepKey];
   const completed = status === true;
 
-  const markDone = () => {
+  const sendValidador = async (valor) => {
+    const loc = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
+    await fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        locationId: loc,
+        validador_paso:  stepKey,
+        validador_valor: valor,
+      }),
+    }).catch(e => console.error('Error guardando validador:', e));
+  };
+
+  const markDone = async () => {
+    await sendValidador('si');
     setStep(stepKey, true);
-    toast({ kind:'ok', title:'Paso marcado como completado', desc:'Actualizaremos tu checklist en la próxima verificación.' });
+    toast({ kind:'ok', title:'Paso marcado como completado' });
     setTimeout(() => navigate('home'), 900);
   };
-  const markUndone = () => {
+
+  const markUndone = async () => {
+    await sendValidador('no');
     setStep(stepKey, false);
     toast({ title:'Paso marcado como pendiente' });
   };
