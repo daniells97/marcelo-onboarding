@@ -400,7 +400,7 @@ function SkeletonChecklist() {
 
 // ---------- Home page ----------
 function HomePage() {
-  const { state, setStep, setForm } = useStoreCtx();
+  const { state, setStep, setForm, patch } = useStoreCtx();
   const { navigate } = useRoute();
   const [loading, setLoading] = useState(true);
 
