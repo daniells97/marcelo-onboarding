@@ -198,8 +198,8 @@ const STEPS_META = {
 const STORE_KEY = 'marcelo_onboarding_v1';
 
 const initialState = {
-  businessName: 'Inmobiliaria Horizonte',
-  contactName: 'María Fernanda Castillo',
+  businessName: '',
+  contactName: '',
   locationId: 'loc_HRZ2042',
   lastCheck: 'Hace 2 h · 14:20',
   steps: { form: true, gmail: false, whatsapp: false, redes: false, dominio: null },
@@ -317,7 +317,7 @@ function StatusIcon({ status, size=20 }) {
 }
 
 // ---------- Header ----------
-function Header({ locationId, businessName, progress, loading }) {
+function Header({ locationId, businessName, contactName, progress, loading }) {
   const { done, total } = progress;
   const pct = total ? Math.round((done/total) * 100) : 0;
   return (
@@ -341,9 +341,9 @@ function Header({ locationId, businessName, progress, loading }) {
 
         <div className="py-10 lg:py-14 grid lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-7">
-            <div className="text-xs uppercase tracking-[0.18em] text-gold-300 mb-3">Bienvenida, María Fernanda</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-gold-300 mb-3">Hola, {contactName}</div>
             <h1 className="font-serif text-[44px] lg:text-[60px] leading-[1.02] text-paper-50">
-              Conectemos <span className="italic text-gold-300">{businessName}</span><br/>
+              Conectemos <span className="italic text-gold-300">{businessName || 'la empresa'}</span>
               con las herramientas correctas.
             </h1>
             <p className="mt-5 text-paper-300/90 text-[15px] max-w-xl leading-relaxed">
@@ -432,6 +432,8 @@ function HomePage() {
         if (data.validador_whatsapp !== '') setStep('whatsapp', data.validador_whatsapp === 'si');
         if (data.validador_redes    !== '') setStep('redes',    data.validador_redes    === 'si');
         if (data.validador_dominio  !== '') setStep('dominio',  data.validador_dominio  === 'si');
+        if (data.nombre_contacto) patch({ contactName: data.nombre_contacto });
+        if (data.nombre_empresa)  patch({ businessName: data.nombre_empresa });
       })
       .catch(err => console.error('Error cargando onboarding:', err))
       .finally(() => setLoading(false));
@@ -456,7 +458,7 @@ function HomePage() {
 
   return (
     <div>
-      <Header locationId={state.locationId} businessName={state.businessName} progress={{ done, total }} loading={loading} />
+      <Header locationId={state.locationId} businessName={state.businessName} contactName={state.contactName} progress={{ done, total }} loading={loading} />
 
       <main className="max-w-6xl mx-auto px-6 lg:px-10 py-12 lg:py-16">
 
