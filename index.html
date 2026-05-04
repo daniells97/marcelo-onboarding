@@ -406,7 +406,7 @@ function HomePage() {
 
   useEffect(() => {
     const loc = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
-    fetch(`https://n8n.dimetrics.com.co/webhook-test/onboarding-load?loc=${encodeURIComponent(loc)}`)
+    fetch(`https://n8n.dimetrics.com.co/webhook/onboarding-load?loc=${encodeURIComponent(loc)}`)
       .then(r => r.json())
       .then(data => {
         if (!data) return;
@@ -1098,7 +1098,7 @@ function FormularioPage() {
   useEffect(() => {
     if (!locationId) return;
     let cancelled = false;
-    fetch(`https://n8n.dimetrics.com.co/webhook-test/onboarding-load?loc=${encodeURIComponent(locationId)}`)
+    fetch(`https://n8n.dimetrics.com.co/webhook/onboarding-load?loc=${encodeURIComponent(locationId)}`)
       .then(r => r.json())
       .then(data => {
         if (cancelled || !data) return;
