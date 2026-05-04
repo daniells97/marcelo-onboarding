@@ -1041,6 +1041,11 @@ function FormularioPage() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [confirmed, setConfirmed] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => {
+    try { return sessionStorage.getItem('marcelo_splash_done') === '1'; } catch { return false; }
+  });
+  const [fadingOut, setFadingOut] = useState(false);
+  const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
 
   useEffect(() => {
     if (!locationId) return;
@@ -1068,10 +1073,6 @@ function FormularioPage() {
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [locationId]);
-  const [splashDone, setSplashDone] = useState(() => {
-    try { return sessionStorage.getItem('marcelo_splash_done') === '1'; } catch { return false; }
-  });
-  const [fadingOut, setFadingOut] = useState(false);
   const leaveSplash = () => {
     if (fadingOut) return;
     setFadingOut(true);
@@ -1101,8 +1102,6 @@ function FormularioPage() {
     setTouched(t => ({ ...t, [k]: true }));
     setErrors(e => ({ ...e, [k]: validate(k, draft[k]) }));
   };
-
-  const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
 
   const next = async () => {
     // mark every field in step as touched so inline errors appear
