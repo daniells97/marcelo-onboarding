@@ -400,10 +400,42 @@ function SkeletonChecklist() {
 
 // ---------- Home page ----------
 function HomePage() {
-  const { state, setStep } = useStoreCtx();
+  const { state, setStep, setForm } = useStoreCtx();
   const { navigate } = useRoute();
   const [loading, setLoading] = useState(true);
-  useEffect(() => { const t = setTimeout(() => setLoading(false), 900); return () => clearTimeout(t); }, []);
+
+  useEffect(() => {
+    const loc = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
+    fetch(`https://n8n.dimetrics.com.co/webhook-test/onboarding-load?loc=${encodeURIComponent(loc)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data) return;
+        // Pre-llenar form
+        setForm({
+          empresa:   data.nombre_empresa   || '',
+          rubro:     data.sector           || '',
+          producto:  data.producto         || '',
+          publico:   data.publico          || '',
+          tono:      data.tono             || 'cercano',
+          primary:   data.color_primario   || '#0F1A2E',
+          secondary: data.color_secundario || '#D4A14A',
+          logoName:  data.logo             || '',
+          instagram: data.instagram        || '',
+          whats:     data.whatsapp         || '',
+          facebook:  data.facebook         || '',
+          telefono:  data.telefono         || '',
+          email:     data.onboarding_email || '',
+          web:       data.sitio_web        || '',
+        });
+        // Actualizar estado del checklist desde validadores GHL
+        if (data.validador_correo   !== '') setStep('gmail',    data.validador_correo   === 'si');
+        if (data.validador_whatsapp !== '') setStep('whatsapp', data.validador_whatsapp === 'si');
+        if (data.validador_redes    !== '') setStep('redes',    data.validador_redes    === 'si');
+        if (data.validador_dominio  !== '') setStep('dominio',  data.validador_dominio  === 'si');
+      })
+      .catch(err => console.error('Error cargando onboarding:', err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const blocks = useMemo(() => {
     const grouped = {};
