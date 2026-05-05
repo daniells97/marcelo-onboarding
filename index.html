@@ -1117,6 +1117,9 @@ function FormularioPage() {
           instagram:  data.instagram         ?? prev.instagram  ?? '',
           whats:      data.whatsapp          ?? prev.whats      ?? '',
           facebook:   data.facebook          ?? prev.facebook   ?? '',
+          email:      data.onboarding_email  ?? prev.email      ?? '',
+          telefono:   data.telefono          ?? prev.telefono   ?? '',
+          web:        data.sitio_web         ?? prev.web        ?? '',
         }));
       })
       .catch(err => console.error('Error:', err))
