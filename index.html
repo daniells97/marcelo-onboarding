@@ -317,7 +317,7 @@ function StatusIcon({ status, size=20 }) {
 }
 
 // ---------- Header ----------
-function Header({ locationId, businessName, contactName, progress, loading }) {
+function Header({ locationId, businessName, contactName, logoEmpresa, progress, loading }) {
   const { done, total } = progress;
   const pct = total ? Math.round((done/total) * 100) : 0;
   return (
@@ -325,9 +325,12 @@ function Header({ locationId, businessName, contactName, progress, loading }) {
       <div className="absolute inset-0 grid-bg opacity-60" />
       <div className="max-w-6xl mx-auto px-6 lg:px-10 relative">
         <div className="flex items-center justify-between py-4 border-b border-white/10">
-          <a href={`#/${locationId}`} className="flex items-center gap-2 group">
-            <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-9 h-9 object-contain" />
-            <div className="leading-tight">
+          <a href={`#/${locationId}`} className="flex items-center gap-3 group">
+  <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-14 h-14 object-contain" />
+  {logoEmpresa && logoEmpresa.startsWith('http') && (
+    <img src={logoEmpresa} alt="Logo empresa" className="w-12 h-12 object-contain rounded-md bg-white/10 p-1" />
+  )}
+  <div className="leading-tight">
               <div className="font-serif text-[18px] text-paper-50">Marcelo <span className="italic text-gold-300">CRM</span></div>
               <div className="text-[10px] uppercase tracking-[0.14em] text-paper-300/70">Portal de onboarding</div>
             </div>
@@ -341,8 +344,10 @@ function Header({ locationId, businessName, contactName, progress, loading }) {
 
         <div className="py-10 lg:py-14 grid lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-7">
-            <div className="text-xs uppercase tracking-[0.18em] text-gold-300 mb-3">Hola, {contactName}</div>
-            <h1 className="font-serif text-[44px] lg:text-[60px] leading-[1.02] text-paper-50">
+            {logoEmpresa && logoEmpresa.startsWith('http') && (
+  <img src={logoEmpresa} alt="Logo empresa" className="w-20 h-20 object-contain rounded-lg mb-4" />
+)}
+<div className="text-xs uppercase tracking-[0.18em] text-gold-300 mb-3">Hola, {contactName}</div>            <h1 className="font-serif text-[44px] lg:text-[60px] leading-[1.02] text-paper-50">
               Conectemos <span className="italic text-gold-300">{businessName || 'la empresa'}</span><br/>
 con las herramientas correctas.
             </h1>
@@ -458,8 +463,7 @@ function HomePage() {
 
   return (
     <div>
-      <Header locationId={state.locationId} businessName={state.businessName} contactName={state.contactName} progress={{ done, total }} loading={loading} />
-
+      <Header locationId={state.locationId} businessName={state.businessName} contactName={state.contactName} logoEmpresa={state.form?.logoName || ''} progress={{ done, total }} loading={loading} />
       <main className="max-w-6xl mx-auto px-6 lg:px-10 py-12 lg:py-16">
 
         {/* intro row */}
@@ -593,10 +597,17 @@ function DetailLayout({ step, children }) {
         <div className="absolute inset-0 grid-bg opacity-60" />
         <div className="max-w-5xl mx-auto px-6 lg:px-10 relative">
           <div className="flex items-center justify-between py-4 border-b border-white/10">
-            <a href={`#/${locationId}`} className="flex items-center gap-2">
-              <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-20 h-20 object-contain" />
-              <div className="font-serif text-[18px]">Marcelo <span className="italic text-gold-300">CRM</span></div>
-            </a>
+            <a href={`#/${locationId}`} className="flex items-center gap-3 group">
+  <img src="assets/marcelo-logo.png" alt="Marcelo" className="w-14 h-14 object-contain" />
+  {/* Logo empresa si está cargado */}
+  {state?.form?.logoName && state.form.logoName.startsWith('http') && (
+    <img src={state.form.logoName} alt="Logo empresa" className="w-12 h-12 object-contain rounded-md bg-white/10 p-1" />
+  )}
+  <div className="leading-tight">
+    <div className="font-serif text-[18px] text-paper-50">Marcelo <span className="italic text-gold-300">CRM</span></div>
+    <div className="text-[10px] uppercase tracking-[0.14em] text-paper-300/70">Portal de onboarding</div>
+  </div>
+</a>
             <div className="hidden md:flex items-center gap-3 text-xs text-paper-300/80">
               <span className="font-mono">{state.locationId}</span>
             </div>
