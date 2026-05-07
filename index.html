@@ -358,7 +358,9 @@ con las herramientas correctas.
           <div className="lg:col-span-5">
             {logoEmpresa && logoEmpresa.startsWith('http') && (
               <div className="flex justify-center mb-4">
-                <img src={logoEmpresa} alt="Logo empresa" className="w-32 h-32 object-contain rounded-xl" />
+                <div className="bg-white/10 border border-white/20 rounded-xl p-4 backdrop-blur-sm inline-flex items-center justify-center">
+                  <img src={logoEmpresa} alt="Logo empresa" className="w-28 h-28 object-contain" />
+                </div>
               </div>
             )}
             <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
