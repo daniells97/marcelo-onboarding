@@ -674,6 +674,7 @@ function InstructionsList({ items }) {
                 {it.code}
               </div>
             )}
+            {it.extra}
           </div>
         </li>
       ))}
@@ -778,25 +779,48 @@ function DetailActions({ stepKey }) {
 function GmailPage() {
   const step = STEPS_META.gmail;
   const locationId = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
+  const [zoomImg, setZoomImg] = React.useState(false);
   return (
     <DetailLayout step={step}>
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-7">
-          <h2 className="font-serif text-2xl text-navy-900 mb-1">Conecta tu calendario en 2 pasos</h2>
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Conecta tu calendario en 3 pasos</h2>
           <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 3 minutos · No requiere conocimientos técnicos.</p>
           <InstructionsList items={[
-            { title:'Haz clic en el botón de abajo para ir directo a la sección de Calendarios en tu CRM' },
-            { title:'Conecta tu Calendario de Google y tu plataforma de videoconferencia (Google Meet, Zoom o Teams)' },
+            {
+              title: 'Haz clic en el botón de abajo para ir directo a la sección de Calendarios en tu CRM',
+              extra: (
+                <div className="mt-3">
+                  <Btn as="a" kind="gold" size="lg" iconRight={<IconArrowRight size={16}/>}
+                    href={`https://app.marcelocrm.com/v2/location/${locationId}/settings/calendars/connections`}
+                    target="_blank" rel="noopener noreferrer"
+                  >
+                    Ir a Integraciones
+                  </Btn>
+                </div>
+              ),
+            },
+            { title: 'Haz clic en "Añadir nuevo" para agregar tu calendario' },
+            { title: 'Conecta tu Calendario de Google y tu plataforma de videoconferencia (Google Meet, Zoom o Teams)' },
           ]}/>
-          <a
-            href={`https://app.marcelocrm.com/v2/location/${locationId}/settings/calendars/connections`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-navy-900 text-paper-50 font-medium px-5 py-3 rounded-xl hover:bg-navy-800 transition-colors mt-6"
-          >
-            Ir a Integraciones →
-          </a>
-          <img src="assets/guia-calendario.png" alt="Guía calendario" className="w-full rounded-xl border hairline shadow-card mt-4" />
+          <img
+            src="assets/guia-calendario.png"
+            alt="Guía calendario"
+            className="w-full rounded-xl border hairline shadow-card mt-4 cursor-zoom-in"
+            onClick={() => setZoomImg(true)}
+          />
+          {zoomImg && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 cursor-zoom-out"
+              onClick={() => setZoomImg(false)}
+            >
+              <img
+                src="assets/guia-calendario.png"
+                alt="Guía calendario"
+                className="max-w-full max-h-full rounded-xl shadow-2xl"
+              />
+            </div>
+          )}
         </div>
         <aside className="lg:col-span-5 space-y-6">
           <VideoCard duration="3:42"/>
