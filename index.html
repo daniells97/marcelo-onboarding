@@ -777,19 +777,26 @@ function DetailActions({ stepKey }) {
 // ---------- Detail pages ----------
 function GmailPage() {
   const step = STEPS_META.gmail;
+  const locationId = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
   return (
     <DetailLayout step={step}>
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-7">
-          <h2 className="font-serif text-2xl text-navy-900 mb-1">Cómo conectarlo</h2>
+          <h2 className="font-serif text-2xl text-navy-900 mb-1">Conecta tu calendario en 2 pasos</h2>
           <p className="text-sm text-ink-500 mb-4">Tiempo estimado: 3 minutos · No requiere conocimientos técnicos.</p>
           <InstructionsList items={[
-            { title:'Abre tu subcuenta en GoHighLevel', sub:'Usa el link que te enviamos al correo. Si no lo encuentras, búscalo como "Bienvenida a Marcelo CRM" en tu bandeja.' },
-            { title:'Ve a Settings → Integrations', sub:'En el menú lateral izquierdo, al final, haz clic en "Settings" (tuerca) y luego en "Integrations".' },
-            { title:'Busca "Google" y haz clic en Connect', sub:'Aparecerá una ventana de Google solicitando permisos de acceso al correo y al calendario.' },
-            { title:'Autoriza con la cuenta Gmail del negocio', sub:'Importante: usa la cuenta del negocio, no tu cuenta personal. Esto evita confusiones con las citas de clientes.' },
-            { title:'Selecciona el calendario principal', sub:'Elige el calendario donde quieres recibir las citas reservadas por tus clientes. Puedes tener varios calendarios conectados más adelante.' },
+            { title:'Haz clic en el botón de abajo para ir directo a la sección de Calendarios en tu CRM' },
+            { title:'Conecta tu Calendario de Google y tu plataforma de videoconferencia (Google Meet, Zoom o Teams)' },
           ]}/>
+          <a
+            href={`https://app.marcelocrm.com/v2/location/${locationId}/settings/calendars/connections`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-navy-900 text-paper-50 font-medium px-5 py-3 rounded-xl hover:bg-navy-800 transition-colors mt-6"
+          >
+            Ir a Integraciones →
+          </a>
+          <img src="assets/guia-calendario.png" alt="Guía calendario" className="w-full rounded-xl border hairline shadow-card mt-4" />
         </div>
         <aside className="lg:col-span-5 space-y-6">
           <VideoCard duration="3:42"/>
