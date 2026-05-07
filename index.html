@@ -1157,49 +1157,43 @@ function FormularioPage() {
   };
 
   const next = async () => {
-    // mark every field in step as touched so inline errors appear
-    const t = { ...touched };
-    const e = { ...errors };
-    STEP_FIELDS[currentStep.id].forEach(k => { t[k] = true; e[k] = validate(k, draft[k]); });
-    setTouched(t); setErrors(e);
-    if (!STEP_FIELDS[currentStep.id].every(k => !e[k])) return;
+  const t = { ...touched };
+  const e = { ...errors };
+  STEP_FIELDS[currentStep.id].forEach(k => { t[k] = true; e[k] = validate(k, draft[k]); });
+  setTouched(t); setErrors(e);
+  if (!STEP_FIELDS[currentStep.id].every(k => !e[k])) return;
 
-    // POST current data to n8n before advancing
-    setSaveState('saving');
-    try {
-      await fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locationId,
-          nombre_empresa: draft.empresa,
-          sector: draft.rubro,
-          producto: draft.producto,
-          publico: draft.publico,
-          tono: draft.tono,
-          color_primario: draft.primary,
-          color_secundario: draft.secondary,
-          logo: draft.logoBase64 || draft.logoName || '',
-          telefono: draft.telefono,
-          email: draft.email,
-          sitio_web: draft.web,
-          instagram: draft.instagram,
-          facebook: draft.facebook,
-          whatsapp: draft.whats,
-        }),
-      });
-      setSaveState('saved');
-      setTimeout(() => setSaveState('idle'), 700);
-    } catch (err) {
-      console.error('Error guardando:', err);
-      setSaveState('error');
-      setTimeout(() => setSaveState('idle'), 1800);
-      // still allow advance so the user is not stuck on connectivity issues
-    }
+  // Si es el último paso, ir directo a revisión sin guardar
+  if (isLast) { setDir(1); setStepIdx(WIZARD_STEPS.length); return; }
 
-    if (isLast) { setStepIdx(WIZARD_STEPS.length); setDir(1); return; }
-    setDir(1); setStepIdx(i => i+1);
-  };
+  // Solo guardar en pasos intermedios
+  setSaveState('saving');
+  fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      locationId,
+      nombre_empresa: draft.empresa,
+      sector: draft.rubro,
+      producto: draft.producto,
+      publico: draft.publico,
+      tono: draft.tono,
+      color_primario: draft.primary,
+      color_secundario: draft.secondary,
+      logo: draft.logoBase64 || draft.logoName || '',
+      telefono: draft.telefono,
+      email: draft.email,
+      sitio_web: draft.web,
+      instagram: draft.instagram,
+      facebook: draft.facebook,
+      whatsapp: draft.whats,
+    }),
+  })
+  .then(() => { setSaveState('saved'); setTimeout(() => setSaveState('idle'), 700); })
+  .catch(err => { console.error('Error guardando:', err); setSaveState('error'); setTimeout(() => setSaveState('idle'), 1800); });
+
+  setDir(1); setStepIdx(i => i+1);
+};
   const back = () => { if (stepIdx === 0) return; setDir(-1); setStepIdx(i => i-1); };
 
   const submit = () => {
