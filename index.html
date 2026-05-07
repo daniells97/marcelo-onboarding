@@ -720,7 +720,7 @@ function DetailActions({ stepKey }) {
 
   const sendValidador = async (valor) => {
     const loc = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
-    await fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+    await fetch('https://n8n.dimetrics.com.co/webhook/onboarding-save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1168,7 +1168,7 @@ function FormularioPage() {
 
   // Solo guardar en pasos intermedios
   setSaveState('saving');
-  fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+  fetch('https://n8n.dimetrics.com.co/webhook/onboarding-save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1200,7 +1200,7 @@ function FormularioPage() {
   setForm(draft);
   setStep('form', true);
 
-  fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+  fetch('https://n8n.dimetrics.com.co/webhook/onboarding-save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
