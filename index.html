@@ -1202,37 +1202,32 @@ function FormularioPage() {
   };
   const back = () => { if (stepIdx === 0) return; setDir(-1); setStepIdx(i => i-1); };
 
-  const submit = async () => {
+  const submit = () => {
   setForm(draft);
   setStep('form', true);
 
-  // POST final con todos los datos y flag de formulario completo
-  try {
-    await fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        locationId,
-        nombre_empresa:   draft.empresa,
-        sector:           draft.rubro,
-        producto:         draft.producto,
-        publico:          draft.publico,
-        tono:             draft.tono,
-        color_primario:   draft.primary,
-        color_secundario: draft.secondary,
-        logo:             draft.logoBase64 || draft.logoName || '',
-        telefono:         draft.telefono,
-        email:            draft.email,
-        sitio_web:        draft.web,
-        instagram:        draft.instagram,
-        facebook:         draft.facebook,
-        whatsapp:         draft.whats,
-        formulario_completo: true,
-      }),
-    });
-  } catch (err) {
-    console.error('Error en submit final:', err);
-  }
+  fetch('https://n8n.dimetrics.com.co/webhook-test/onboarding-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      locationId,
+      nombre_empresa:   draft.empresa,
+      sector:           draft.rubro,
+      producto:         draft.producto,
+      publico:          draft.publico,
+      tono:             draft.tono,
+      color_primario:   draft.primary,
+      color_secundario: draft.secondary,
+      logo:             draft.logoBase64 || draft.logoName || '',
+      telefono:         draft.telefono,
+      email:            draft.email,
+      sitio_web:        draft.web,
+      instagram:        draft.instagram,
+      facebook:         draft.facebook,
+      whatsapp:         draft.whats,
+      formulario_completo: true,
+    }),
+  }).catch(err => console.error('Error en submit final:', err));
 
   setConfirmed(true);
   fireConfetti();
