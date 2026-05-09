@@ -1013,7 +1013,8 @@ const WIZARD_STEPS = [
   { id:'identidad', title:'Identidad del negocio', desc:'Lo básico sobre tu empresa y a quién te diriges.' },
   { id:'voz',       title:'Voz y marca',           desc:'Cómo te reconocemos visualmente y cómo suenas.' },
   { id:'contacto',  title:'Contacto operativo',    desc:'Datos que aparecerán en comunicaciones.' },
-  { id:'canales',   title:'Redes y canales',       desc:'De dónde vienen tus leads y dónde los atiendes.' },
+  { id:'canales',   title:'Redes y canales',        desc:'De dónde vienen tus leads y dónde los atiendes.' },
+  { id:'calendario', title:'Tu calendario de citas', desc:'Configura cómo tus clientes agendan contigo. Lo dejamos listo en tu CRM automáticamente.' },
 ];
 
 function validate(k, v) {
@@ -1031,6 +1032,7 @@ const STEP_FIELDS = {
   voz:       ['tono','primary','secondary'],
   contacto:  ['telefono','email','web'],
   canales:   ['instagram','facebook','whats','meet'],
+  calendario: ['cal_nombre','cal_duracion','cal_reunion','cal_max_dia','cal_gestion'],
 };
 
 function stepIsValid(stepId, draft) {
@@ -1131,8 +1133,8 @@ function FormularioPage() {
   }, []);
 
   const [draft, setDraft] = useState(() => locationId
-    ? { tono:'cercano', empresa:'', rubro:'', producto:'', publico:'', primary:'', secondary:'', logoName:'', telefono:'', email:'', web:'', instagram:'', facebook:'', whats:'', meet:'' }
-    : { tono:'cercano', ...state.form });
+    ? { tono:'cercano', empresa:'', rubro:'', producto:'', publico:'', primary:'', secondary:'', logoName:'', telefono:'', email:'', web:'', instagram:'', facebook:'', whats:'', meet:'', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false }
+    : { tono:'cercano', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false, ...state.form });
   const [loading, setLoading] = useState(!!locationId);
   const [stepIdx, setStepIdx] = useState(0);
   const [dir, setDir] = useState(1); // 1 forward, -1 back
@@ -1267,6 +1269,12 @@ function FormularioPage() {
       instagram:        draft.instagram,
       facebook:         draft.facebook,
       whatsapp:         draft.whats,
+      cal_nombre:       draft.cal_nombre,
+      cal_duracion:     draft.cal_duracion,
+      cal_reunion:      draft.cal_reunion,
+      cal_max_dia:      draft.cal_max_dia,
+      cal_gestion:      draft.cal_gestion,
+      cal_omitir:       draft.cal_omitir,
       formulario_completo: true,
     }),
   }).catch(err => console.error('Error en submit final:', err));
@@ -1364,6 +1372,87 @@ function FormularioPage() {
                   <FloatingInput label="Link de Zoom / Meet" value={draft.meet} onChange={v=>update('meet',v)} onBlur={()=>blur('meet')} touched={touched.meet} placeholder="https://"/>
                 </div>
               )}
+              {currentStep.id === 'calendario' && (
+                <div className="mt-6 space-y-8">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] font-medium text-ink-500 bg-paper-100 border hairline rounded-full px-3 py-1">Opcional</span>
+
+                  <div className="space-y-3">
+                    <ChipGroup
+                      label="¿Cómo se llamará esta cita?"
+                      options={[
+                        { id:'Consulta gratuita',      label:'Consulta gratuita' },
+                        { id:'Demo del producto',      label:'Demo del producto' },
+                        { id:'Asesoría inicial',       label:'Asesoría inicial' },
+                        { id:'Reunión de seguimiento', label:'Reunión de seguimiento' },
+                        { id:'__otro',                 label:'Otro' },
+                      ]}
+                      selectedId={
+                        ['Consulta gratuita','Demo del producto','Asesoría inicial','Reunión de seguimiento'].includes(draft.cal_nombre)
+                          ? draft.cal_nombre
+                          : draft.cal_nombre ? '__otro' : ''
+                      }
+                      onChange={v => update('cal_nombre', v === '__otro' ? '' : v)}
+                      variant="contacto"
+                    />
+                    {!['Consulta gratuita','Demo del producto','Asesoría inicial','Reunión de seguimiento'].includes(draft.cal_nombre) && (
+                      <FloatingInput label="Nombre personalizado de la cita" value={draft.cal_nombre} onChange={v => update('cal_nombre', v)}/>
+                    )}
+                  </div>
+
+                  <ChipGroup
+                    label="¿Cuánto dura cada cita?"
+                    options={[
+                      { id:'15', label:'15 min' },
+                      { id:'30', label:'30 min' },
+                      { id:'45', label:'45 min' },
+                      { id:'60', label:'60 min' },
+                      { id:'90', label:'90 min' },
+                    ]}
+                    selectedId={draft.cal_duracion}
+                    onChange={v => update('cal_duracion', v)}
+                    variant="chips5"
+                  />
+
+                  <ChipGroup
+                    label="¿Dónde se reúnen con el cliente?"
+                    options={[
+                      { id:'googlemeet', label:'Google Meet',        desc:'Videollamada vía Google' },
+                      { id:'zoom',       label:'Zoom',               desc:'Videollamada vía Zoom' },
+                      { id:'teams',      label:'Microsoft Teams',    desc:'Videollamada vía Teams' },
+                      { id:'telefono',   label:'Llamada telefónica', desc:'Sin video, solo llamada' },
+                      { id:'presencial', label:'Presencial',         desc:'En persona, sin video' },
+                    ]}
+                    selectedId={draft.cal_reunion}
+                    onChange={v => update('cal_reunion', v)}
+                    variant="tone"
+                  />
+
+                  <ChipGroup
+                    label="¿Cuántas citas máximo quieres al día?"
+                    options={[
+                      { id:'0',  label:'Sin límite' },
+                      { id:'3',  label:'3' },
+                      { id:'5',  label:'5' },
+                      { id:'8',  label:'8' },
+                      { id:'10', label:'10' },
+                    ]}
+                    selectedId={draft.cal_max_dia}
+                    onChange={v => update('cal_max_dia', v)}
+                    variant="chips5"
+                  />
+
+                  <ChipGroup
+                    label="¿Pueden tus clientes reagendar o cancelar solos?"
+                    options={[
+                      { id:'si', label:'Sí, sin problema', desc:'Se gestionan solos sin escribirte' },
+                      { id:'no', label:'No, me contactan',  desc:'Deben escribirte para cualquier cambio' },
+                    ]}
+                    selectedId={draft.cal_gestion}
+                    onChange={v => update('cal_gestion', v)}
+                    variant="tone"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1372,8 +1461,12 @@ function FormularioPage() {
             <Btn kind="ghost" onClick={back} disabled={stepIdx === 0 || saveState === 'saving'} icon={<IconArrowLeft size={16}/>}>
               Atrás
             </Btn>
-            <div className="text-xs hidden sm:block min-h-[20px]">
-              {saveState === 'saving' ? (
+            <div className={`text-xs min-h-[20px] ${currentStep.id === 'calendario' ? '' : 'hidden sm:block'}`}>
+              {currentStep.id === 'calendario' ? (
+                <Btn kind="ghost" size="sm" onClick={() => { update('cal_omitir', true); setDir(1); setStepIdx(WIZARD_STEPS.length); }} iconRight={<IconArrowRight size={14}/>}>
+                  Omitir este paso
+                </Btn>
+              ) : saveState === 'saving' ? (
                 <span className="inline-flex items-center gap-2 text-ink-500">
                   <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-paper-300 border-t-gold-400 animate-spin" />
                   Guardando…
@@ -1958,7 +2051,7 @@ function ChipGroup({ label, required, options, onChange, selectedId, error, vari
         </div>
         {selectedId && <div className="text-xs text-ok flex items-center gap-1"><IconCheck size={12} stroke={2.5}/> Seleccionado</div>}
       </div>
-      <div className={`grid gap-2.5 ${variant==='tone' ? 'md:grid-cols-2' : 'sm:grid-cols-2 md:grid-cols-4'}`}>
+      <div className={`grid gap-2.5 ${variant==='tone' ? 'md:grid-cols-2' : variant==='chips5' ? 'sm:grid-cols-3 md:grid-cols-5' : 'sm:grid-cols-2 md:grid-cols-4'}`}>
         {options.map(opt => {
           const active = opt.id === selectedId;
           return (
@@ -2096,6 +2189,33 @@ function ReviewScreen({ draft, onBack, onSubmit, onEdit }) {
             </dl>
           </div>
         ))}
+        {!draft.cal_omitir && draft.cal_nombre && (
+          <div className="bg-white border hairline rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 bg-paper-50 border-b hairline">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-ok text-white grid place-items-center"><IconCheck size={12} stroke={3}/></span>
+                <div className="font-serif text-[17px] text-navy-900">Tu calendario de citas</div>
+              </div>
+              <button onClick={() => onEdit(4)} className="text-xs text-navy-900 hover:text-gold-500 inline-flex items-center gap-1.5 transition-colors">
+                <IconEdit size={12}/> Editar
+              </button>
+            </div>
+            <dl className="grid md:grid-cols-2 gap-x-6 gap-y-3 px-5 py-4">
+              {[
+                ['Nombre de la cita', draft.cal_nombre],
+                ['Duración', draft.cal_duracion ? `${draft.cal_duracion} min` : ''],
+                ['Plataforma', ({googlemeet:'Google Meet',zoom:'Zoom',teams:'Microsoft Teams',telefono:'Llamada telefónica',presencial:'Presencial'})[draft.cal_reunion] || draft.cal_reunion],
+                ['Máx. citas por día', draft.cal_max_dia === '0' ? 'Sin límite' : draft.cal_max_dia],
+                ['Reagendar/cancelar', draft.cal_gestion === 'si' ? 'Sí, solos' : 'No, me contactan'],
+              ].map(([k,v]) => (
+                <div key={k} className="min-w-0">
+                  <dt className="text-[10px] uppercase tracking-[0.14em] text-ink-500">{k}</dt>
+                  <dd className="text-[14px] text-navy-900 mt-0.5 truncate">{v || <span className="text-ink-400 italic">Sin definir</span>}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
       </div>
       <div className="mt-8 pt-6 border-t hairline flex items-center justify-between gap-4">
         <Btn kind="ghost" onClick={onBack} icon={<IconArrowLeft size={16}/>}>Volver al formulario</Btn>
