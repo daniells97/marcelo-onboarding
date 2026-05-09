@@ -1010,8 +1010,9 @@ const TONOS = [
 ];
 
 const WIZARD_STEPS = [
-  { id:'identidad', title:'Identidad del negocio', desc:'Lo básico sobre tu empresa y a quién te diriges.' },
-  { id:'voz',       title:'Voz y marca',           desc:'Cómo te reconocemos visualmente y cómo suenas.' },
+  { id:'identidad', title:'Identidad del negocio',      desc:'Lo básico sobre tu empresa y a quién te diriges.' },
+  { id:'propuesta', title:'Tu propuesta de valor',     desc:'Con esto generamos tu lead magnet y tus primeros 5 emails de forma automática.' },
+  { id:'voz',       title:'Voz y marca',               desc:'Cómo te reconocemos visualmente y cómo suenas.' },
   { id:'contacto',  title:'Contacto operativo',    desc:'Datos que aparecerán en comunicaciones.' },
   { id:'canales',   title:'Redes y canales',        desc:'De dónde vienen tus leads y dónde los atiendes.' },
   { id:'calendario', title:'Tu calendario de citas', desc:'Configura cómo tus clientes agendan contigo. Lo dejamos listo en tu CRM automáticamente.' },
@@ -1019,7 +1020,7 @@ const WIZARD_STEPS = [
 
 function validate(k, v) {
   const s = (v ?? '').toString().trim();
-  const REQ = ['empresa','rubro','producto','publico','tono','telefono','email'];
+  const REQ = ['empresa','rubro','producto','publico','tono','telefono','email','resultado','cta'];
   if (REQ.includes(k) && !s) return 'Este campo es obligatorio';
   if (k === 'email' && s && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return 'Formato de correo inválido';
   if (k === 'telefono' && s && s.replace(/\D/g,'').length < 7) return 'Número demasiado corto';
@@ -1028,10 +1029,11 @@ function validate(k, v) {
 }
 
 const STEP_FIELDS = {
-  identidad: ['empresa','rubro','producto','publico'],
-  voz:       ['tono','primary','secondary'],
-  contacto:  ['telefono','email','web'],
-  canales:   ['instagram','facebook','whats','meet'],
+  identidad:  ['empresa','rubro','producto','publico'],
+  propuesta:  ['problema','resultado','diferenciador','objecion','cta'],
+  voz:        ['tono','primary','secondary'],
+  contacto:   ['telefono','email','web'],
+  canales:    ['instagram','facebook','whats','meet'],
   calendario: ['cal_nombre','cal_duracion','cal_reunion','cal_max_dia','cal_gestion'],
 };
 
@@ -1133,8 +1135,8 @@ function FormularioPage() {
   }, []);
 
   const [draft, setDraft] = useState(() => locationId
-    ? { tono:'cercano', empresa:'', rubro:'', producto:'', publico:'', primary:'', secondary:'', logoName:'', telefono:'', email:'', web:'', instagram:'', facebook:'', whats:'', meet:'', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false }
-    : { tono:'cercano', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false, ...state.form });
+    ? { tono:'cercano', empresa:'', rubro:'', producto:'', publico:'', problema:'', resultado:'', diferenciador:'', objecion:'', cta:'', primary:'', secondary:'', logoName:'', telefono:'', email:'', web:'', instagram:'', facebook:'', whats:'', meet:'', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false }
+    : { tono:'cercano', problema:'', resultado:'', diferenciador:'', objecion:'', cta:'', cal_nombre:'', cal_duracion:'30', cal_reunion:'googlemeet', cal_max_dia:'0', cal_gestion:'si', cal_omitir:false, ...state.form });
   const [loading, setLoading] = useState(!!locationId);
   const [stepIdx, setStepIdx] = useState(0);
   const [dir, setDir] = useState(1); // 1 forward, -1 back
@@ -1269,6 +1271,11 @@ function FormularioPage() {
       instagram:        draft.instagram,
       facebook:         draft.facebook,
       whatsapp:         draft.whats,
+      problema:         draft.problema,
+      resultado:        draft.resultado,
+      diferenciador:    draft.diferenciador,
+      objecion:         draft.objecion,
+      cta:              draft.cta,
       cal_nombre:       draft.cal_nombre,
       cal_duracion:     draft.cal_duracion,
       cal_reunion:      draft.cal_reunion,
@@ -1327,6 +1334,91 @@ function FormularioPage() {
                   <FloatingTextarea full label="Público objetivo" value={draft.publico} onChange={v=>update('publico',v)} onBlur={()=>blur('publico')} error={touched.publico && errors.publico} touched={touched.publico} required rows={3}/>
                 </div>
               )}
+              {currentStep.id === 'propuesta' && (() => {
+                const r = draft.rubro || '';
+                const PROB_PRESETS = r.includes('Consultoría')
+                  ? ['No saben cómo escalar su negocio','Pierden tiempo en procesos manuales','No tienen claridad en sus números','Les cuesta conseguir clientes']
+                  : r.includes('Inmobiliaria')
+                  ? ['No saben en quién confiar','No encuentran la propiedad ideal','Miedo a tomar una mala decisión','Proceso muy complicado']
+                  : r.includes('Seguros')
+                  ? ['No entienden qué póliza necesitan','Miedo a pagar de más','No confían en las aseguradoras','Proceso muy burocrático']
+                  : r.includes('Educación')
+                  ? ['No tienen tiempo para estudiar','Cursos que no dan resultados reales','No saben por dónde empezar','Precio muy alto']
+                  : r.includes('Salud')
+                  ? ['No encuentran un especialista de confianza','Largas esperas para citas','Tratamientos muy costosos','Miedo al diagnóstico']
+                  : ['Les cuesta conseguir clientes','Procesos ineficientes','No tienen tiempo','Falta de confianza en el mercado'];
+                const DIF_PRESETS = ['Experiencia comprobada','Resultados garantizados','Atención personalizada','Precio justo','Metodología propia'];
+                const OBJ_PRESETS = ['El precio les parece alto','No confían todavía','Ya lo intentaron antes y no funcionó','No tienen tiempo ahora','No ven la urgencia'];
+                const problemaId  = PROB_PRESETS.includes(draft.problema)      ? draft.problema      : (draft.problema      ? '__otro_p' : '');
+                const difId       = DIF_PRESETS.includes(draft.diferenciador)  ? draft.diferenciador : (draft.diferenciador ? '__otro_d' : '');
+                const objId       = OBJ_PRESETS.includes(draft.objecion)       ? draft.objecion      : (draft.objecion      ? '__otro_o' : '');
+                return (
+                  <div className="mt-8 space-y-8">
+                    <div className="space-y-3">
+                      <ChipGroup
+                        label="¿Cuál es el mayor problema que resuelves?"
+                        options={[...PROB_PRESETS.map(l=>({id:l,label:l})), {id:'__otro_p',label:'Otro'}]}
+                        selectedId={problemaId}
+                        onChange={v => update('problema', v === '__otro_p' ? '' : v)}
+                        variant="contacto"
+                      />
+                      {!PROB_PRESETS.includes(draft.problema) && (
+                        <FloatingInput label="Describe el problema" value={draft.problema} onChange={v=>update('problema',v)}/>
+                      )}
+                    </div>
+                    <FloatingTextarea
+                      label="¿Qué logra tu cliente después de trabajar contigo?"
+                      value={draft.resultado}
+                      onChange={v=>update('resultado',v)}
+                      onBlur={()=>blur('resultado')}
+                      error={touched.resultado && errors.resultado}
+                      touched={touched.resultado}
+                      required
+                      rows={2}
+                      placeholder="Ej: En 90 días duplican sus leads sin aumentar su presupuesto de pauta"
+                    />
+                    <div className="space-y-3">
+                      <ChipGroup
+                        label="¿Qué te hace diferente a la competencia?"
+                        options={[...DIF_PRESETS.map(l=>({id:l,label:l})), {id:'__otro_d',label:'Otro'}]}
+                        selectedId={difId}
+                        onChange={v => update('diferenciador', v === '__otro_d' ? '' : v)}
+                        variant="contacto"
+                      />
+                      {!DIF_PRESETS.includes(draft.diferenciador) && (
+                        <FloatingInput label="Tu diferenciador" value={draft.diferenciador} onChange={v=>update('diferenciador',v)}/>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      <ChipGroup
+                        label="¿Por qué un cliente duda en contratarte?"
+                        options={[...OBJ_PRESETS.map(l=>({id:l,label:l})), {id:'__otro_o',label:'Otro'}]}
+                        selectedId={objId}
+                        onChange={v => update('objecion', v === '__otro_o' ? '' : v)}
+                        variant="contacto"
+                      />
+                      {!OBJ_PRESETS.includes(draft.objecion) && (
+                        <FloatingInput label="La principal objeción" value={draft.objecion} onChange={v=>update('objecion',v)}/>
+                      )}
+                    </div>
+                    <ChipGroup
+                      label="¿Qué quieres que haga el cliente cuando esté listo?"
+                      required
+                      options={[
+                        {id:'Agendar una llamada',   label:'Agendar una llamada'},
+                        {id:'Solicitar una demo',    label:'Solicitar una demo'},
+                        {id:'Comprar directamente',  label:'Comprar directamente'},
+                        {id:'Escribir por WhatsApp', label:'Escribir por WhatsApp'},
+                        {id:'Visitar mi sitio web',  label:'Visitar mi sitio web'},
+                      ]}
+                      selectedId={draft.cta}
+                      onChange={v => { update('cta', v); setTouched(t=>({...t,cta:true})); setErrors(e=>({...e,cta:null})); }}
+                      error={touched.cta && errors.cta}
+                      variant="contacto"
+                    />
+                  </div>
+                );
+              })()}
               {currentStep.id === 'voz' && loading && (
                 <FormSkeleton kind="voz" />
               )}
@@ -1604,7 +1696,7 @@ function FloatingInput({ label, value='', onChange, onBlur, error, touched, requ
   );
 }
 
-function FloatingTextarea({ label, value='', onChange, onBlur, error, touched, required, rows=3, full }) {
+function FloatingTextarea({ label, value='', onChange, onBlur, error, touched, required, rows=3, full, placeholder }) {
   const [focused, setFocused] = useState(false);
   const floaty = focused || !!value;
   const showOk = touched && !error && !!(value||'').toString().trim();
@@ -1624,6 +1716,7 @@ function FloatingTextarea({ label, value='', onChange, onBlur, error, touched, r
         <textarea
           rows={rows}
           value={value || ''}
+          placeholder={floaty ? (placeholder || '') : ''}
           onFocus={()=>setFocused(true)}
           onBlur={(e)=>{ setFocused(false); onBlur?.(e); }}
           onChange={e => onChange(e.target.value)}
@@ -2147,16 +2240,23 @@ function ReviewScreen({ draft, onBack, onSubmit, onEdit }) {
       ['Empresa', draft.empresa], ['Rubro', draft.rubro],
       ['Producto/servicio', draft.producto], ['Público objetivo', draft.publico],
     ]},
-    { idx:1, title:'Voz y marca', items:[
+    { idx:1, title:'Tu propuesta de valor', items:[
+      ['Problema que resuelves', draft.problema],
+      ['Resultado para el cliente', draft.resultado],
+      ['Diferenciador', draft.diferenciador],
+      ['Principal objeción', draft.objecion],
+      ['CTA principal', draft.cta],
+    ]},
+    { idx:2, title:'Voz y marca', items:[
       ['Tono', (TONOS.find(t=>t.id===draft.tono)?.label) || draft.tono],
       ['Color primario', draft.primary, 'color'],
       ['Color secundario', draft.secondary, 'color'],
       ['Logo', draft.logoName],
     ]},
-    { idx:2, title:'Contacto operativo', items:[
+    { idx:3, title:'Contacto operativo', items:[
       ['Teléfono', draft.telefono], ['Email', draft.email], ['Sitio web', draft.web],
     ]},
-    { idx:3, title:'Redes y canales', items:[
+    { idx:4, title:'Redes y canales', items:[
       ['Instagram', draft.instagram], ['Facebook', draft.facebook],
       ['WhatsApp', draft.whats], ['Link de reunión', draft.meet],
     ]},
@@ -2196,7 +2296,7 @@ function ReviewScreen({ draft, onBack, onSubmit, onEdit }) {
                 <span className="w-6 h-6 rounded-full bg-ok text-white grid place-items-center"><IconCheck size={12} stroke={3}/></span>
                 <div className="font-serif text-[17px] text-navy-900">Tu calendario de citas</div>
               </div>
-              <button onClick={() => onEdit(4)} className="text-xs text-navy-900 hover:text-gold-500 inline-flex items-center gap-1.5 transition-colors">
+              <button onClick={() => onEdit(5)} className="text-xs text-navy-900 hover:text-gold-500 inline-flex items-center gap-1.5 transition-colors">
                 <IconEdit size={12}/> Editar
               </button>
             </div>
