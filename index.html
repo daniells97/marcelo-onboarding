@@ -1157,22 +1157,38 @@ function FormularioPage() {
       .then(data => {
         if (cancelled || !data) return;
         setDraft(prev => ({
-          ...prev,
-          empresa:    data.nombre_empresa    ?? prev.empresa    ?? '',
-          rubro:      data.sector            ?? prev.rubro      ?? '',
-          producto:   data.producto          ?? prev.producto   ?? '',
-          publico:    data.publico           ?? prev.publico    ?? '',
-          tono:       data.tono              || prev.tono,
-          primary:    data.color_primario    || prev.primary    || '#0F1A2E',
-          secondary:  data.color_secundario  || prev.secondary  || '#D4A14A',
-          logoName:   data.logo              ?? prev.logoName   ?? '',
-          instagram:  data.instagram         ?? prev.instagram  ?? '',
-          whats:      data.whatsapp          ?? prev.whats      ?? '',
-          facebook:   data.facebook          ?? prev.facebook   ?? '',
-          email:      data.onboarding_email  ?? prev.email      ?? '',
-          telefono:   data.telefono          ?? prev.telefono   ?? '',
-          web:        data.sitio_web         ?? prev.web        ?? '',
-        }));
+  ...prev,
+  empresa:       data.nombre_empresa    ?? prev.empresa    ?? '',
+  rubro:         data.sector            ?? prev.rubro      ?? '',
+  producto:      data.producto          ?? prev.producto   ?? '',
+  publico:       data.publico           ?? prev.publico    ?? '',
+  // Paso 2 — Propuesta de valor
+  problema:      data.problema          ?? prev.problema   ?? '',
+  resultado:     data.resultado         ?? prev.resultado  ?? '',
+  diferenciador: data.diferenciador     ?? prev.diferenciador ?? '',
+  objecion:      data.objecion          ?? prev.objecion   ?? '',
+  cta:           data.cta               ?? prev.cta        ?? '',
+  // Paso 3 — Voz y marca
+  tono:          data.tono              || prev.tono,
+  primary:       data.color_primario    || prev.primary    || '#0F1A2E',
+  secondary:     data.color_secundario  || prev.secondary  || '#D4A14A',
+  logoName:      data.logo              ?? prev.logoName   ?? '',
+  // Paso 4 — Contacto
+  telefono:      data.telefono          ?? prev.telefono   ?? '',
+  email:         data.onboarding_email  ?? prev.email      ?? '',
+  web:           data.sitio_web         ?? prev.web        ?? '',
+  // Paso 5 — Canales
+  instagram:     data.instagram         ?? prev.instagram  ?? '',
+  whats:         data.whatsapp          ?? prev.whats      ?? '',
+  facebook:      data.facebook          ?? prev.facebook   ?? '',
+  // Paso 6 — Calendario
+  cal_nombre:    data.cal_nombre        ?? prev.cal_nombre    ?? '',
+  cal_duracion:  data.cal_duracion      ?? prev.cal_duracion  ?? '30',
+  cal_reunion:   data.cal_reunion       ?? prev.cal_reunion   ?? 'Google Meet',
+  cal_max_dia:   data.cal_max_dia       ?? prev.cal_max_dia   ?? 'Sin límite',
+  cal_gestion:   data.cal_gestion       ?? prev.cal_gestion   ?? 'Sí, sin problema',
+  cal_omitir:    data.cal_omitir        ?? prev.cal_omitir    ?? false,
+}));
       })
       .catch(err => console.error('Error:', err))
       .finally(() => { if (!cancelled) setLoading(false); });
