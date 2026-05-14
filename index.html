@@ -753,43 +753,45 @@ function DetailActions({ stepKey }) {
   };
 
   const markDone = async () => {
-    if (stepKey === 'gmail') {
-      setVerificando(true);
+  if (stepKey === 'gmail') {
+    setVerificando(true);
+    try {
+      const res = await fetch('https://n8n.dimetrics.com.co/webhook/onboarding-process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
+      });
+      const text = await res.text();
+      console.log('RESPUESTA RAW:', text);
+      let data;
       try {
-        const res = await fetch('https://n8n.dimetrics.com.co/webhook/onboarding-process', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
-});
-const text = await res.text();
-const data = JSON.parse(text);
-        if (data.status === 'ok') {
-          setProveedor(data.proveedor || 'Google Meet');
-          await sendValidador('si');
-          setStep(stepKey, true);
-          setShowModal(true);
-        } else {
-          toast({ title: 'No se detectó ningún proveedor conectado. Verifica la integración en tu CRM.' });
-        }
-      } catch (e) {
-        toast({ title: 'Error al verificar la conexión.' });
-      } finally {
-        setVerificando(false);
+        data = JSON.parse(text);
+      } catch(parseErr) {
+        console.error('Error parseando:', text);
+        toast({ title: 'Error al procesar la respuesta del servidor.' });
+        return;
       }
-      return;
+      if (data.status === 'ok') {
+        setProveedor(data.proveedor || 'Google Meet');
+        await sendValidador('si');
+        setStep(stepKey, true);
+        setShowModal(true);
+      } else {
+        toast({ title: 'No se detectó ningún proveedor conectado. Verifica la integración en tu CRM.' });
+      }
+    } catch (e) {
+      console.error('Error fetch:', e);
+      toast({ title: 'Error al verificar la conexión.' });
+    } finally {
+      setVerificando(false);
     }
-    await sendValidador('si');
-    setStep(stepKey, true);
-    toast({ kind: 'ok', title: 'Paso marcado como completado' });
-    setTimeout(() => navigate('home'), 900);
-  };
-
-  const markUndone = async () => {
-    await sendValidador('no');
-    setStep(stepKey, false);
-    toast({ title: 'Paso marcado como pendiente' });
-  };
-
+    return;
+  }
+  await sendValidador('si');
+  setStep(stepKey, true);
+  toast({ kind: 'ok', title: 'Paso marcado como completado' });
+  setTimeout(() => navigate('home'), 900);
+};
   return (
     <>
       {showModal && (
