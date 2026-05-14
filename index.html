@@ -1072,11 +1072,11 @@ function RedesPage() {
 
 function DominioPage() {
   const step = STEPS_META.dominio;
-  const { locationId } = useRoute();
+  const locationId = new URLSearchParams(window.location.search).get('loc') || 'BrAkzvwuSYdO3sDC9DL3';
   const [path, setPath] = useState(null); // null | 'comprar' | 'conectar'
   const [provider, setProvider] = useState('cloudflare');
 
-  const crmDomainsUrl = `https://app.marcelocrm.com/v2/location/${locationId}/settings/domains`;
+  const crmDomainsUrl = `https://app.marcelocrm.com/v2/location/${locationId}/settings/domain`;
 
   const PROVIDERS = [
     { id:'cloudflare', label:'Cloudflare' },
