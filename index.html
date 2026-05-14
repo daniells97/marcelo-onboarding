@@ -752,6 +752,12 @@ function DetailActions({ stepKey }) {
     }).catch(e => console.error('Error guardando validador:', e));
   };
 
+  const markUndone = async () => {
+  await sendValidador('no');
+  setStep(stepKey, false);
+  toast({ title: 'Paso marcado como pendiente' });
+};
+
   const markDone = async () => {
   if (stepKey === 'gmail') {
     setVerificando(true);
