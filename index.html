@@ -958,6 +958,7 @@ function GmailPage() {
           </div>
         </aside>
       </div>
+      <DetailActions stepKey="gmail" />
       <div className="mt-14">
         <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
         <FAQ items={[
@@ -967,7 +968,6 @@ function GmailPage() {
           { q:'Si cambio de contraseña de Gmail, ¿se desconecta?', a:'No. La conexión usa un token seguro que sobrevive al cambio de contraseña. Solo se desconecta si revocas el acceso manualmente o lo haces desde el CRM.' },
         ]}/>
       </div>
-      <DetailActions stepKey="gmail" />
     </DetailLayout>
   );
 }
@@ -1003,6 +1003,7 @@ function WhatsPage() {
           </div>
         </aside>
       </div>
+      <DetailActions stepKey="whatsapp" />
       <div className="mt-14">
         <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
         <FAQ items={[
@@ -1012,7 +1013,6 @@ function WhatsPage() {
           { q:'¿Puedo automatizar respuestas?', a:'Sí. Una vez conectado, podrás crear flujos automáticos desde el constructor de automatizaciones del CRM.' },
         ]}/>
       </div>
-      <DetailActions stepKey="whatsapp" />
     </DetailLayout>
   );
 }
@@ -1056,6 +1056,7 @@ function RedesPage() {
           </div>
         </aside>
       </div>
+      <DetailActions stepKey="redes" />
       <div className="mt-14">
         <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
         <FAQ items={[
@@ -1065,7 +1066,6 @@ function RedesPage() {
           { q:'¿Qué datos ve el CRM de mis perfiles?', a:'Únicamente los mensajes, formularios y comentarios públicos que gestionas como página. No accede a tu perfil personal ni a mensajes privados de tu cuenta personal.' },
         ]}/>
       </div>
-      <DetailActions stepKey="redes" />
     </DetailLayout>
   );
 }
@@ -1233,11 +1233,11 @@ function DominioPage() {
           </button>
         </div>
 
-        <div className="mt-2">
+        <DetailActions stepKey="dominio"/>
+        <div className="mt-14">
           <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
           <FAQ items={FAQ_ITEMS}/>
         </div>
-        <DetailActions stepKey="dominio"/>
       </DetailLayout>
     );
   }
@@ -1310,11 +1310,11 @@ function DominioPage() {
             </div>
           </aside>
         </div>
+        <DetailActions stepKey="dominio"/>
         <div className="mt-14">
           <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
           <FAQ items={FAQ_ITEMS}/>
         </div>
-        <DetailActions stepKey="dominio"/>
       </DetailLayout>
     );
   }
@@ -1379,11 +1379,11 @@ function DominioPage() {
           </aside>
         </div>
       </div>
+      <DetailActions stepKey="dominio"/>
       <div className="mt-14">
         <h2 className="font-serif text-2xl text-navy-900 mb-4">Preguntas frecuentes</h2>
         <FAQ items={FAQ_ITEMS}/>
       </div>
-      <DetailActions stepKey="dominio"/>
     </DetailLayout>
   );
 }
