@@ -757,11 +757,12 @@ function DetailActions({ stepKey }) {
       setVerificando(true);
       try {
         const res = await fetch('https://n8n.dimetrics.com.co/webhook/onboarding-process', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
-        });
-        const data = await res.json();
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
+});
+const text = await res.text();
+const data = JSON.parse(text);
         if (data.status === 'ok') {
           setProveedor(data.proveedor || 'Google Meet');
           await sendValidador('si');
