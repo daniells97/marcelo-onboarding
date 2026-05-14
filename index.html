@@ -762,7 +762,7 @@ function DetailActions({ stepKey }) {
         body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
       });
       const text = await res.text();
-const cleanText = text.startsWith('=') ? text.slice(1) : text;
+      const cleanText = text.trim().replace(/^=/, '');
 console.log('RESPUESTA RAW:', cleanText);
       let data;
       try {
