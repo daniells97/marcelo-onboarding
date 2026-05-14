@@ -762,10 +762,11 @@ function DetailActions({ stepKey }) {
         body: JSON.stringify({ trigger: 'verificar_calendario', locationId: loc }),
       });
       const text = await res.text();
-      console.log('RESPUESTA RAW:', text);
+const cleanText = text.startsWith('=') ? text.slice(1) : text;
+console.log('RESPUESTA RAW:', cleanText);
       let data;
       try {
-        data = JSON.parse(text.startsWith('=') ? text.slice(1) : text);
+        data = JSON.parse(cleanText);
       } catch(parseErr) {
         console.error('Error parseando:', text);
         toast({ title: 'Error al procesar la respuesta del servidor.' });
