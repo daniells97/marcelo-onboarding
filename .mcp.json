@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+      "ghl-marcelo": {
+        "url": "https://services.leadconnectorhq.com/mcp/",
+        "headers": {
+          "Authorization": "Bearer pit-f6278fe0-8c9e-4dfa-8000-9cb14f46e8be",
+          "locationId": "KkvsKZH4ScjWxatKPo8Y"
+        }
+      }
+    }
+  }
