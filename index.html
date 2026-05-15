@@ -794,6 +794,42 @@ console.log('RESPUESTA RAW:', cleanText);
     }
     return;
   }
+  if (stepKey === 'redes') {
+    setVerificando(true);
+    try {
+      const res = await fetch('https://n8n.dimetrics.com.co/webhook/onboarding-process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger: 'verificar_redes', locationId: loc }),
+      });
+      const text = await res.text();
+      const cleanText = text.trim().replace(/^=/, '');
+      console.log('REDES RAW:', cleanText);
+      let data;
+      try {
+        data = JSON.parse(cleanText);
+      } catch (parseErr) {
+        console.error('Error parseando redes:', text);
+        toast({ title: 'Error al procesar la respuesta del servidor.' });
+        return;
+      }
+      if (data.status === 'ok') {
+        await sendValidador('si');
+        setStep(stepKey, true);
+        toast({ kind: 'ok', title: '¡Redes conectadas!', desc: `Se detectó: ${data.red || 'Facebook/Instagram'}` });
+        setTimeout(() => navigate('home'), 1200);
+      } else {
+        toast({ title: 'No se detectaron redes conectadas. Verifica la integración en tu CRM.' });
+      }
+    } catch (e) {
+      console.error('Error fetch redes:', e);
+      toast({ title: 'Error al verificar la conexión.' });
+    } finally {
+      setVerificando(false);
+    }
+    return;
+  }
+
   await sendValidador('si');
   setStep(stepKey, true);
   toast({ kind: 'ok', title: 'Paso marcado como completado' });
