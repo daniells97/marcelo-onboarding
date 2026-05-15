@@ -76,6 +76,8 @@ export default function HomePage() {
   const done = requiredKeys.filter(k => state.steps[k] === true).length + (state.steps.dominio === true ? 1 : 0);
   const total = 5;
 
+  const allRequiredDone = requiredKeys.every(k => state.steps[k] === true);
+
   const nextPending = useMemo(() => {
     return Object.values(STEPS_META).find(m => m.required && state.steps[m.key] !== true);
   }, [state.steps]);
@@ -130,6 +132,41 @@ export default function HomePage() {
                 </div>
               </section>
             ))}
+          </div>
+        )}
+
+        {/* CRM ready banner — only when all 4 required steps are complete */}
+        {!loading && allRequiredDone && (
+          <div className="mt-12 fade-in">
+            <button
+              onClick={() => navigate(`/${locationId}/asistente`)}
+              className="w-full relative overflow-hidden rounded-2xl bg-navy-900 text-paper-50 noise group transition-shadow hover:shadow-cardHover"
+            >
+              <div className="absolute inset-0 grid-bg opacity-40" />
+              <div className="relative flex flex-col md:flex-row md:items-center gap-6 px-8 py-7">
+                <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 p-1.5">
+                  <img src="/assets/marcelo-logo.png" alt="Marcelo" className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-gold-300 mb-1">Tu CRM está listo</div>
+                  <div className="font-serif text-2xl lg:text-[28px] leading-tight">
+                    Habla con tu asistente
+                  </div>
+                  <p className="text-paper-300/80 text-sm mt-1.5">
+                    Marcelo ya tiene acceso a tu pipeline, leads y calendario. Empieza a consultar.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 text-xs text-ok bg-okbg/20 border border-ok/20 rounded-full px-3 py-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ok" />
+                    CRM activo
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-gold-400 text-navy-900 grid place-items-center group-hover:bg-gold-300 transition-colors">
+                    <IconArrowRight size={18} />
+                  </div>
+                </div>
+              </div>
+            </button>
           </div>
         )}
 

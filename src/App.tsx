@@ -7,6 +7,7 @@ import WhatsPage from './pages/WhatsPage';
 import RedesPage from './pages/RedesPage';
 import DominioPage from './pages/DominioPage';
 import FormularioPage from './pages/FormularioPage';
+import AsistentePage from './pages/AsistentePage';
 
 const PAGES: Record<string, React.ComponentType> = {
   gmail:      GmailPage,
@@ -14,6 +15,7 @@ const PAGES: Record<string, React.ComponentType> = {
   redes:      RedesPage,
   dominio:    DominioPage,
   formulario: FormularioPage,
+  asistente:  AsistentePage,
 };
 
 export default function App() {
