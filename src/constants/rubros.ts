@@ -26,7 +26,7 @@ export const WIZARD_STEPS = [
 ];
 
 export const STEP_FIELDS: Record<string, string[]> = {
-  identidad:  ['empresa','rubro','producto','publico'],
+  identidad:  ['empresa','rubro','produto','publico'],
   propuesta:  ['problema','resultado','diferenciador','objecion','cta'],
   voz:        ['tono','primary','secondary'],
   contacto:   ['telefono','email','web'],

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export function validate(k: string, v: unknown): string | null {
   const s = (v ?? '').toString().trim();
-  const REQ = ['empresa','rubro','producto','publico','tono','telefono','email','resultado','cta'];
+  const REQ = ['empresa','rubro','produto','publico','tono','telefono','email','resultado','cta'];
   if (REQ.includes(k) && !s) return 'Este campo es obligatorio';
   if (k === 'email' && s && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return 'Formato de correo inválido';
   if (k === 'telefono' && s && s.replace(/\D/g,'').length < 7) return 'Número demasiado corto';
