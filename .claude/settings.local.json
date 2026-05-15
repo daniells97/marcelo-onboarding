@@ -3,7 +3,9 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\DanielLopezSuarez\\\\Downloads\\\\Onboarding Marcelo\" -Recurse -File)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)"
     ]
   }
 }
