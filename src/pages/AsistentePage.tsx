@@ -57,8 +57,9 @@ const HERO_CHIPS = [
 const ASISTENTE_URL = 'https://n8n.dimetrics.com.co/webhook/asistente';
 
 interface AsisteResponse {
-  respuesta: string;
-  status: string;
+  respuesta?: string;
+  output?: string;
+  status?: string;
 }
 
 async function fetchRespuesta(
@@ -72,9 +73,13 @@ async function fetchRespuesta(
     body: JSON.stringify({ mensaje, locationId, historial: [], nombreBroker }),
   });
   const text = await res.text();
+  if (!text) throw new Error('Respuesta vacía del servidor');
   const clean = text.trim().replace(/^=/, '');
+  console.log('RAW response:', text);
   const data = JSON.parse(clean) as AsisteResponse;
-  return data.respuesta;
+  console.log('Parsed:', data);
+  const respuesta = data?.respuesta || data?.output || 'Sin respuesta';
+  return respuesta;
 }
 
 function getTime() {
@@ -82,6 +87,7 @@ function getTime() {
 }
 
 function renderText(raw: string): string {
+  if (!raw) return '';
   return raw
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*\((.+?)\)\*/g, '<span class="italic text-ink-400 text-[13px]">($1)</span>');
