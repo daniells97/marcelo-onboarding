@@ -54,31 +54,27 @@ const HERO_CHIPS = [
   '"¿Cuántos leads llegaron ayer?"',
 ];
 
-const MOCK_REPLIES: [string, string][] = [
-  [
-    'leads',
-    'Hoy tienes **3 leads nuevos** en tu pipeline: Ana Gómez (Facebook), Carlos Ruiz (Instagram) y Marcela Torres (WhatsApp). ¿Quieres que los agende para una llamada?',
-  ],
-  [
-    'citas',
-    'Mañana tienes **2 citas confirmadas**: una a las 10:00 AM con Luis Herrera y otra a las 3:00 PM con Patricia Silva. Ambas están en Google Meet.',
-  ],
-  [
-    'sin respuesta',
-    'Encontré **5 contactos** que no han respondido en los últimos 7 días. Los más antiguos son: Roberto Mora (hace 6 días) y Diana Pérez (hace 5 días). ¿Quieres que los marque para seguimiento?',
-  ],
-  [
-    'pipeline',
-    'Tu pipeline tiene **12 oportunidades activas** por un valor estimado de **$480,000**. 4 están en contacto inicial, 5 en negociación y 3 listos para cerrar esta semana.',
-  ],
-];
+const ASISTENTE_URL = 'https://n8n.dimetrics.com.co/webhook/asistente';
 
-function getMockReply(text: string): string {
-  const lower = text.toLowerCase();
-  const match = MOCK_REPLIES.find(([k]) => lower.includes(k));
-  return match
-    ? match[1]
-    : 'Entendido. Estoy consultando tu CRM para darte la información más reciente. *(Esta es una respuesta de demostración — el asistente de IA se conectará en el siguiente paso.)*';
+interface AsisteResponse {
+  respuesta: string;
+  status: string;
+}
+
+async function fetchRespuesta(
+  mensaje: string,
+  locationId: string,
+  nombreBroker: string,
+): Promise<string> {
+  const res = await fetch(ASISTENTE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mensaje, locationId, historial: [], nombreBroker }),
+  });
+  const text = await res.text();
+  const clean = text.trim().replace(/^=/, '');
+  const data = JSON.parse(clean) as AsisteResponse;
+  return data.respuesta;
 }
 
 function getTime() {
@@ -228,20 +224,32 @@ export default function AsistentePage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  function addUserMessage(text: string) {
+  async function addUserMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
     if (!heroCollapsed) setHeroCollapsed(true);
     setMessages(prev => [...prev, { id: nextId.current++, role: 'user', text: trimmed, time: getTime() }]);
     setInput('');
     setTyping(true);
-    setTimeout(() => {
-      setTyping(false);
+    try {
+      const respuesta = await fetchRespuesta(trimmed, locId, contactName || '');
       setMessages(prev => [
         ...prev,
-        { id: nextId.current++, role: 'assistant', text: getMockReply(trimmed), time: getTime() },
+        { id: nextId.current++, role: 'assistant', text: respuesta, time: getTime() },
       ]);
-    }, 900 + Math.random() * 600);
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: nextId.current++,
+          role: 'assistant',
+          text: 'Hubo un error al conectar con el asistente. Por favor intenta de nuevo.',
+          time: getTime(),
+        },
+      ]);
+    } finally {
+      setTyping(false);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
